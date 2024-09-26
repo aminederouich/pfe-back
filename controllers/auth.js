@@ -1,6 +1,38 @@
 const { auth, db } = require('./../config/firebase')
-const { signInWithEmailAndPassword, createUserWithEmailAndPassword } = require('firebase/auth')
+const { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } = require('firebase/auth')
 const { doc, setDoc } = require('firebase/firestore')
+
+exports.isLogged = async (req, res) => {
+	try {
+		// Check if the user is authenticated
+		const user = auth.currentUser
+		if (user) {
+			// If the user is authenticated, respond with user details
+			return res.status(200).json({
+				error: false,
+				message: 'User is authenticated',
+				user: {
+					uid: user.uid,
+					email: user.email,
+					name: user.displayName // assuming the displayName is set during signup
+				}
+			})
+		} else {
+			// If no user is authenticated, respond with an appropriate message
+			return res.status(401).json({
+				error: true,
+				message: 'No user is authenticated'
+			})
+		}
+	} catch (error) {
+		console.log(error)
+		// Handle any errors
+		return res.status(500).json({
+			error: true,
+			message: 'An error occurred while checking authentication status'
+		})
+	}
+}
 
 // signup
 exports.signup = async (req, res) => {
@@ -95,6 +127,25 @@ exports.signin = async (req, res) => {
 	}
 }
 
+exports.logout = async (req, res) => {
+	try {
+		// Déconnexion de l'utilisateur
+		await signOut(auth)
+
+		// Réponse réussie
+		return res.status(200).json({
+			error: false,
+			message: 'User has been logged out successfully',
+		})
+	} catch (error) {
+		console.log(error)
+		// Gestion des erreurs de déconnexion
+		return res.status(500).json({
+			error: true,
+			message: 'An error occurred during logout',
+		})
+	}
+}
 // verify email
 // this work after signup & signin
 exports.verifyEmail = (req, res) => {
