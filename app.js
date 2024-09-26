@@ -1,5 +1,6 @@
 const createError = require('http-errors')
 const express = require('express')
+const cors = require('cors')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const logger = require('morgan')
@@ -8,6 +9,12 @@ const indexRouter = require('./routes/index')
 const authRoutes = require('./routes/auth')
 
 const app = express()
+
+// Use CORS middleware
+app.use(cors())
+app.use(cors({
+	origin: 'http://localhost:3000'
+}))
 
 // Middleware setup
 app.use(logger('dev'))
