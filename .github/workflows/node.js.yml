@@ -27,6 +27,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Étape 4 : Exécution des tests
+      # Étape 4 : ESLint
+      - name: Run ESLint
+        run: npm run lint
+
+      # Étape 5 : Exécution des tests
       - name: Run tests
         run: npm test
