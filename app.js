@@ -34,7 +34,7 @@ app.use(function (req, res, next) {
 // error handler
 // eslint-disable-next-line no-unused-vars
 app.use(function (err, req, res, next) {
-	// send the error response as JSON
+	// send the error response as JSON 
 	res.status(err.status || 500)
 	res.json({
 		status: err.status,
