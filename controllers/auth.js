@@ -1,22 +1,34 @@
 const { auth, db } = require('./../config/firebase')
 const { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } = require('firebase/auth')
-const { doc, setDoc } = require('firebase/firestore')
+const { doc, setDoc, getDoc } = require('firebase/firestore')
 
 exports.isLogged = async (req, res) => {
 	try {
 		// Check if the user is authenticated
 		const user = auth.currentUser
 		if (user) {
-			// If the user is authenticated, respond with user details
-			return res.status(200).json({
-				error: false,
-				message: 'User is authenticated',
-				user: {
-					uid: user.uid,
-					email: user.email,
-					name: user.displayName // assuming the displayName is set during signup
-				}
-			})
+			const userDoc = await getDoc(doc(db, 'users', user.uid))
+			// Check if the user document exists in Firestore
+			if (userDoc.exists()) {
+				// If the user document exists, return the user data
+				return res.status(200).json({
+					error: false,
+					message: 'User is authenticated',
+					user: {
+						IsEmployee: userDoc.data().IsEmployee,
+						IsManager: userDoc.data().IsManager,
+						LastName: userDoc.data().LastName,
+						FirstName: userDoc.data().FirstName,
+						uid: user.uid,
+						email: user.email,
+						name: user.displayName,
+						photoURL: user.photoURL,
+						phoneNumber: user.phoneNumber,
+						providerData: user.providerData,
+						metadata: user.metadata,
+					}
+				})
+			}
 		} else {
 			// If no user is authenticated, respond with an appropriate message
 			return res.status(401).json({
