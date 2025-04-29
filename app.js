@@ -8,6 +8,7 @@ const logger = require('morgan')
 const indexRouter = require('./routes/index')
 const authRoutes = require('./routes/auth')
 const jiraClientRoutes = require('./routes/jira_client')
+const jiraConfigRoutes = require('./routes/jira_config')
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use('/', indexRouter)
 app.use('/auth', authRoutes)
 app.use('/jira_client', jiraClientRoutes)
+app.use('/jira_config', jiraConfigRoutes)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
