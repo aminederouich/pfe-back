@@ -111,16 +111,27 @@ exports.signin = async (req, res) => {
 		// Connexion de l'utilisateur avec Firebase Auth
 		const userCredential = await signInWithEmailAndPassword(auth, email, password)
 		const user = userCredential.user
-
-		// Réponse réussie
-		return res.status(200).json({
-			error: false,
-			message: 'Sign in successful',
-			user: {
-				uid: user.uid,
-				email: user.email
-			}
-		})
+		const userDoc = await getDoc(doc(db, 'users', user.uid))
+		if (userDoc.exists()) {
+			// If the user document exists, return the user data
+			return res.status(200).json({
+				error: false,
+				message: 'Sign in successful',
+				user: {
+					IsEmployee: userDoc.data().IsEmployee,
+					IsManager: userDoc.data().IsManager,
+					LastName: userDoc.data().LastName,
+					FirstName: userDoc.data().FirstName,
+					uid: user.uid,
+					email: user.email,
+					name: user.displayName,
+					photoURL: user.photoURL,
+					phoneNumber: user.phoneNumber,
+					providerData: user.providerData,
+					metadata: user.metadata,
+				}
+			})
+		}
 	} catch (error) {
 		// Gestion des erreurs de connexion
 		let errorMessage = 'An error occurred during sign in'
