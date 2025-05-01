@@ -25,7 +25,7 @@ module.exports = {
 		'react'
 	],
 	rules: {
-		indent: ['error', 'tab'],
+		indent: ['error', 'space'],
 		quotes: ['error', 'single'],
 		semi: ['error', 'never'],
 		'no-unused-vars': ['error', {
