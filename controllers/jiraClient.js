@@ -3,7 +3,6 @@ const { jiraConfig } = require('../config/Jira')
 exports.jiraClient = async (req, res) => {
 	try {
 		const issue = await jiraConfig.findIssue('SCRUM-1')
-		console.log(issue)
 		res.status(200).json({
 			error: false,
 			message: 'Jira client is working',

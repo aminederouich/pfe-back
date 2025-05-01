@@ -1,23 +1,22 @@
-const express = require('express')
-const router = express.Router()
+const express = require("express");
+const router = express.Router();
 
 const {
-	isLogged,
-	signup,
-	signin,
-	forgetPassword,
-	logout
-} = require('../controllers/auth')
+  isLogged,
+  signup,
+  signin,
+  forgetPassword,
+  logout,
+} = require("../controllers/auth");
 
-router.post('/signup', signup)
+router.post("/signup", signup);
 
-router.post('/signin', signin)
+router.post("/signin", signin);
 
-router.post('/forget-password', forgetPassword)
+router.post("/forget-password", forgetPassword);
 
-router.get('/check-auth', isLogged)
+router.get("/check-auth", isLogged);
 
-router.post('/logout', logout)
+router.post("/logout", logout);
 
-
-module.exports = router
+module.exports = router;
