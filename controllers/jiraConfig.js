@@ -1,7 +1,56 @@
-const { getDocs, query, collection } = require("firebase/firestore");
+const { getDocs, query, collection, addDoc } = require("firebase/firestore");
+const JiraApi = require("jira-client");
 const jiraConfig = require("../config/Jira");
 const { db } = require("../config/firebase");
 const { auth } = require("./auth");
+
+exports.checkConncetionJiraAPI = [
+  auth,
+  (req, res) => {
+    const { protocol, host, username, password, apiVersion, strictSSL } =
+      req.body;
+
+    if (
+      !protocol ||
+      !host ||
+      !username ||
+      !password ||
+      !apiVersion ||
+      strictSSL.toString() === undefined
+    ) {
+      return res.status(422).json({
+        error: true,
+        message: "some info is required",
+      });
+    }
+
+    const jira = new JiraApi({
+      protocol: protocol,
+      host: host,
+      username: username,
+      password: password,
+      apiVersion: apiVersion,
+      strictSSL: strictSSL,
+    });
+    jira
+      .getCurrentUser()
+      .then((response) => {
+        if (Object.prototype.hasOwnProperty.call(response, 'accountId')) {
+          return res.status(200).json({
+            error: false,
+            message: "Connection successful",
+          });
+        }
+      })
+  
+      .catch((err) => {
+        return res.status(422).json({
+          error: true,
+          message: "Connection failed",
+        });
+      });
+  },
+];
 
 exports.getAllConfigJiraClient = [
   auth,
@@ -28,27 +77,47 @@ exports.getAllConfigJiraClient = [
   },
 ];
 
-exports.addConfigJiraClient = async (req, res) => {
-  const { jiraUrl, username, password } = req.body;
+exports.addConfigJiraClient = [
+  auth,
+  (req, res) => {
+    const { protocol, host, username, password, apiVersion, strictSSL } =
+      req.body;
 
-  if (!jiraUrl || !username || !password) {
-    return res.status(400).json({
-      error: true,
-      message: "Jira URL, username, and password are required",
-    });
-  }
+    if (
+      !protocol ||
+      !host ||
+      !username ||
+      !password ||
+      !apiVersion ||
+      strictSSL.toString() === undefined
+    ) {
+      return res.status(422).json({
+        error: true,
+        message: "some info is required",
+      });
+    }
 
-  try {
-    jiraConfig.setJiraCredentials(jiraUrl, username, password);
-    res.status(200).json({
-      error: false,
-      message: "Jira client configuration added successfully",
-    });
-  } catch (error) {
-    console.error("Error adding Jira client configuration:", error);
-    res.status(500).json({
-      error: true,
-      message: "Error adding Jira client configuration",
-    });
-  }
-};
+    addDoc(collection(db, "jiraConfig"), {
+      protocol: protocol,
+      host: host,
+      username: username,
+      password: password,
+      apiVersion: apiVersion,
+      strictSSL: strictSSL,
+    })
+      .then((response) => {
+        console.log(response);
+        res.status(200).json({
+          error: false,
+          message: "Jira client configuration added successfully",
+        });
+      })
+  
+      .catch((err) => {
+        return res.status(422).json({
+          error: true,
+          message: "Connection failed",
+        });
+      });
+  },
+];
