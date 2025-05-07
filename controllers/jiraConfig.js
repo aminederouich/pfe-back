@@ -1,4 +1,4 @@
-const { getDocs, query, collection, addDoc } = require("firebase/firestore");
+const { getDocs, query, collection, addDoc, doc, deleteDoc, setDoc } = require("firebase/firestore");
 const JiraApi = require("jira-client");
 const jiraConfig = require("../config/Jira");
 const { db } = require("../config/firebase");
@@ -117,6 +117,82 @@ exports.addConfigJiraClient = [
         return res.status(422).json({
           error: true,
           message: "Connection failed",
+        });
+      });
+  },
+];
+
+exports.deleteConfigJiraClientByID = [
+  auth,
+  (req, res) => {
+    const { ids } = req.body;
+    if (ids.length === 0) {
+      return res.status(422).json({
+        error: true,
+        message: "ID is required",
+      });
+    }
+    ids.forEach((id) => {
+
+      deleteDoc(doc(db, "jiraConfig", id))
+        .then(() => {
+          res.status(200).json({
+            error: false,
+            message: "Jira client configuration deleted successfully",
+          });
+        })
+        .catch((error) => {
+          console.error("Error deleting Jira client configuration:", error);
+          res.status(500).json({
+            error: true,
+            message: "Error deleting Jira client configuration",
+          });
+        });
+    })
+  },
+];
+
+exports.updateConfigJiraClient = [
+  auth,
+  (req, res) => {
+    const { id, protocol, host, username, password, apiVersion, strictSSL } =
+      req.body;
+
+    if (
+      !id ||
+      !protocol ||
+      !host ||
+      !username ||
+      !password ||
+      !apiVersion ||
+      strictSSL.toString() === undefined
+    ) {
+      return res.status(422).json({
+        error: true,
+        message: "some info is required",
+      });
+    }
+
+    setDoc(doc(db, "jiraConfig", id), {
+      protocol: protocol,
+      host: host,
+      username: username,
+      password: password,
+      apiVersion: apiVersion,
+      strictSSL: strictSSL,
+    })
+      .then(() => {
+        res.status(200).json({
+          error: false,
+          message: "Jira client configuration updated successfully",
+        });
+      })
+  
+      .catch((error) => {
+        console.error("Error updating Jira client configuration:", error);
+        res.status(500).json({
+          error: true,
+          message: "Error updating Jira client configuration",
         });
       });
   },

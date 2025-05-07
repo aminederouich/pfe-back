@@ -3,7 +3,9 @@ const router = express.Router()
 const {
 	addConfigJiraClient,
 	getAllConfigJiraClient,
-	checkConncetionJiraAPI
+	checkConncetionJiraAPI,
+	deleteConfigJiraClientByID,
+	updateConfigJiraClient
 } = require('../controllers/jiraConfig')
 
 router.post('/checkConnection', checkConncetionJiraAPI)
@@ -12,5 +14,9 @@ router.get('/getAllConfig', getAllConfigJiraClient)
 
 // Route to add Jira client configuration
 router.post('/addConfig', addConfigJiraClient)
+
+router.post('/deleteConfigByID', deleteConfigJiraClientByID)
+
+router.post('/updateConfigByID', updateConfigJiraClient)
 
 module.exports = router
