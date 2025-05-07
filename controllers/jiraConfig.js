@@ -104,6 +104,7 @@ exports.addConfigJiraClient = [
       password: password,
       apiVersion: apiVersion,
       strictSSL: strictSSL,
+      enableConfig: true,
     })
       .then((response) => {
         console.log(response);
@@ -155,17 +156,17 @@ exports.deleteConfigJiraClientByID = [
 exports.updateConfigJiraClient = [
   auth,
   (req, res) => {
-    const { id, protocol, host, username, password, apiVersion, strictSSL } =
+    const { id, protocol, host, username, password, apiVersion, strictSSL, enableConfig } =
       req.body;
-
-    if (
+      if (
       !id ||
       !protocol ||
       !host ||
       !username ||
       !password ||
       !apiVersion ||
-      strictSSL.toString() === undefined
+      strictSSL.toString() === undefined ||
+      enableConfig.toString() === undefined
     ) {
       return res.status(422).json({
         error: true,
@@ -180,6 +181,7 @@ exports.updateConfigJiraClient = [
       password: password,
       apiVersion: apiVersion,
       strictSSL: strictSSL,
+      enableConfig: enableConfig,
     })
       .then(() => {
         res.status(200).json({
