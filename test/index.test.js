@@ -1,6 +1,6 @@
 const request = require('supertest')
 const express = require('express')
-const indexRouter = require('./index') // Remplace './index' par le chemin de ton fichier de route
+const indexRouter = require('../routes/index') // Remplace './index' par le chemin de ton fichier de route
 
 const app = express()
 app.use('/', indexRouter)
