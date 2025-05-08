@@ -9,6 +9,7 @@ const indexRouter = require('./routes/index')
 const authRoutes = require('./routes/auth')
 const jiraClientRoutes = require('./routes/jira_client')
 const jiraConfigRoutes = require('./routes/jira_config')
+const ticketRoutes = require('./routes/ticket')
 
 const app = express()
 
@@ -29,6 +30,7 @@ app.use('/', indexRouter)
 app.use('/auth', authRoutes)
 app.use('/jira_client', jiraClientRoutes)
 app.use('/jira_config', jiraConfigRoutes)
+app.use('/ticket', ticketRoutes)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

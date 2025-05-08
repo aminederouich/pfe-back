@@ -1,6 +1,5 @@
 const { getDocs, query, collection, addDoc, doc, deleteDoc, setDoc } = require("firebase/firestore");
 const JiraApi = require("jira-client");
-const jiraConfig = require("../config/Jira");
 const { db } = require("../config/firebase");
 const { auth } = require("./auth");
 
@@ -36,6 +35,7 @@ exports.checkConncetionJiraAPI = [
       .getCurrentUser()
       .then((response) => {
         if (Object.prototype.hasOwnProperty.call(response, 'accountId')) {
+          console.log("Connection successful for config:", response.accountId);
           return res.status(200).json({
             error: false,
             message: "Connection successful",
