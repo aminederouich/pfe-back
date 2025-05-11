@@ -284,20 +284,8 @@ exports.getAllTicket = [
             console.log(
               `Fetched ${querySnapshot.docs.length} tickets from Firebase.`
             );
-            const allTickets = querySnapshot.docs
-              .map((doc) =>
-                config.id === doc.data().configId ? doc.data() : null
-              )
-              .filter(Boolean);
+            allTicketsResult = querySnapshot.docs.map((doc) => doc.data());
 
-            console.log(
-              `Adding tickets to result for configuration: ${config.id}`
-            );
-            allTicketsResult.push({
-              configId: config.id,
-              tickets: allTickets,
-              success: true,
-            });
           } catch (error) {
             console.error(
               `Error setting up Jira client for configuration ${config.id}:`,
