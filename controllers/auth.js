@@ -6,62 +6,56 @@ const {
 } = require("firebase/auth");
 const { doc, setDoc, getDoc } = require("firebase/firestore");
 const jwt = require("jsonwebtoken");
+const authMiddleware = require("../middleware/auth");
 require("dotenv").config();
 
-exports.auth = (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({
-        error: true,
-        message: "Authentication required",
-      });
-    }
-    // Log JWT verification attempt
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      error: true,
-      message: "Invalid or expired token",
-    });
-  }
-};
-
 exports.isLogged = [
-  exports.auth,
+  authMiddleware,
   async (req, res) => {
+    console.log("Starting isLogged check...");
     try {
       // Get user from auth middleware
       const uid = req.user.uid;
-
+      console.log("User UID from token:", uid);
       const userDoc = await getDoc(doc(db, "users", uid));
-
+      console.log("Firestore query completed");
       if (userDoc.exists()) {
+        const userData = userDoc.data();
+        console.log("User document found:", {
+          email: userData.email,
+          name: userData.name,
+          isEmployee: userData.IsEmployee,
+          isManager: userData.IsManager,
+        });
+
         return res.status(200).json({
           error: false,
           message: "User is authenticated",
           user: {
-            IsEmployee: userDoc.data().IsEmployee,
-            IsManager: userDoc.data().IsManager,
-            LastName: userDoc.data().LastName,
-            FirstName: userDoc.data().FirstName,
+            IsEmployee: userData.IsEmployee,
+            IsManager: userData.IsManager,
+            LastName: userData.LastName,
+            FirstName: userData.FirstName,
             uid: uid,
-            email: userDoc.data().email,
-            name: userDoc.data().name,
-            photoURL: userDoc.data().photoURL,
-            phoneNumber: userDoc.data().phoneNumber,
+            email: userData.email,
+            name: userData.name,
+            photoURL: userData.photoURL,
+            phoneNumber: userData.phoneNumber,
           },
         });
       } else {
+        console.log("User document not found for UID:", uid);
         return res.status(404).json({
           error: true,
           message: "User document not found",
         });
       }
     } catch (error) {
-      console.error("Error checking authentication status:", error);
+      console.error("Error checking authentication status:", {
+        errorCode: error.code,
+        errorMessage: error.message,
+        stack: error.stack,
+      });
       return res.status(500).json({
         error: true,
         message: "An error occurred while checking authentication status",
@@ -137,7 +131,11 @@ exports.signin = async (req, res) => {
     }
 
     // Firebase Authentication
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
     const user = userCredential.user;
     const userDoc = await getDoc(doc(db, "users", user.uid));
 
@@ -150,11 +148,11 @@ exports.signin = async (req, res) => {
 
     // Generate JWT token with additional user claims
     const token = jwt.sign(
-      { 
-        uid: user.uid, 
+      {
+        uid: user.uid,
         email: user.email,
         isEmployee: userDoc.data().IsEmployee,
-        isManager: userDoc.data().IsManager
+        isManager: userDoc.data().IsManager,
       },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
@@ -174,10 +172,9 @@ exports.signin = async (req, res) => {
         LastName: userDoc.data().LastName,
         FirstName: userDoc.data().FirstName,
         photoURL: userDoc.data().photoURL,
-        phoneNumber: userDoc.data().phoneNumber
-      }
+        phoneNumber: userDoc.data().phoneNumber,
+      },
     });
-
   } catch (error) {
     console.error("Signin error:", {
       code: error.code,
@@ -210,22 +207,22 @@ exports.signin = async (req, res) => {
     return res.status(statusCode).json({
       error: true,
       message: errorMessage,
-      errorCode: error.code
+      errorCode: error.code,
     });
   }
 };
 
 exports.logout = [
-  exports.auth,
+  authMiddleware,
   async (req, res) => {
     try {
       // Get user from auth middleware
       const uid = req.user.uid;
-      
+
       if (!uid) {
         return res.status(401).json({
           error: true,
-          message: "User not authenticated"
+          message: "User not authenticated",
         });
       }
 
@@ -241,22 +238,22 @@ exports.logout = [
       return res.status(200).json({
         error: false,
         message: "User has been logged out successfully",
-        clearToken: true
+        clearToken: true,
       });
     } catch (error) {
       console.error("Logout error:", {
         code: error.code,
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
       });
-      
+
       return res.status(500).json({
         error: true,
         message: "An error occurred during logout",
-        errorDetails: error.message
+        errorDetails: error.message,
       });
     }
-  }
+  },
 ];
 // verify email
 // this work after signup & signin

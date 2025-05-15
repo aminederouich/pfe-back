@@ -1,10 +1,10 @@
 const { getDocs, query, collection, addDoc, doc, deleteDoc, setDoc } = require("firebase/firestore");
 const JiraApi = require("jira-client");
 const { db } = require("../config/firebase");
-const { auth } = require("./auth");
+const authMiddleware = require("../middleware/auth");
 
 exports.checkConncetionJiraAPI = [
-  auth,
+  authMiddleware,
   (req, res) => {
     const { protocol, host, username, password, apiVersion, strictSSL } =
       req.body;
@@ -53,7 +53,7 @@ exports.checkConncetionJiraAPI = [
 ];
 
 exports.getAllConfigJiraClient = [
-  auth,
+  authMiddleware,
   (req, res) => {
     getDocs(query(collection(db, "jiraConfig")))
       .then((querySnapshot) => {
@@ -78,7 +78,7 @@ exports.getAllConfigJiraClient = [
 ];
 
 exports.addConfigJiraClient = [
-  auth,
+  authMiddleware,
   (req, res) => {
     const { protocol, host, username, password, apiVersion, strictSSL } =
       req.body;
@@ -124,7 +124,7 @@ exports.addConfigJiraClient = [
 ];
 
 exports.deleteConfigJiraClientByID = [
-  auth,
+  authMiddleware,
   (req, res) => {
     const { ids } = req.body;
     if (ids.length === 0) {
@@ -154,7 +154,7 @@ exports.deleteConfigJiraClientByID = [
 ];
 
 exports.updateConfigJiraClient = [
-  auth,
+  authMiddleware,
   (req, res) => {
     const { id, protocol, host, username, password, apiVersion, strictSSL, enableConfig } =
       req.body;

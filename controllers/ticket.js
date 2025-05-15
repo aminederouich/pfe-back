@@ -8,7 +8,7 @@ const {
 } = require("firebase/firestore");
 const JiraApi = require("jira-client");
 const { db } = require("../config/firebase");
-const { auth } = require("./auth");
+const authMiddleware = require("../middleware/auth");
 
 async function getJiraConfigs() {
   console.log("Fetching Jira configurations from Firebase...");
@@ -224,7 +224,7 @@ async function syncTicketWithFirebase(ticket, configId) {
 }
 
 exports.getAllTicket = [
-  auth,
+  authMiddleware,
   async (req, res) => {
     console.log("Starting getAllTicket function...");
     try {
