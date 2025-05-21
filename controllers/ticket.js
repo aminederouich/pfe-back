@@ -279,12 +279,33 @@ exports.getAllTicket = [
             console.log(
               `Fetching all tickets from Firebase for configuration: ${config.id}`
             );
-            const querySnapshot = await getDocs(collection(db, "tickets"));
+            const querySnapshot = await getDocs(query(
+              collection(db, "tickets"),
+              where("configId", "==", config.id)
+            ));
 
             console.log(
               `Fetched ${querySnapshot.docs.length} tickets from Firebase.`
             );
-            allTicketsResult = querySnapshot.docs.map((doc) => doc.data());
+            if (config.enableConfig) {
+              const configTickets = querySnapshot.docs.map((doc) => doc.data());
+              allTicketsResult.push(...configTickets);
+            }
+
+            // Récupérer les tickets sans configId (une seule fois à la fin de la boucle)
+            if (config.id === configs[configs.length - 1].id) {
+              console.log("Fetching tickets without configId...");
+              const noConfigQuerySnapshot = await getDocs(query(
+                collection(db, "tickets"),
+                where("configId", "==", "")
+              ));
+
+              console.log(
+                `Fetched ${noConfigQuerySnapshot.docs.length} tickets without configId`
+              );
+              const noConfigTickets = noConfigQuerySnapshot.docs.map((doc) => doc.data());
+              allTicketsResult.push(...noConfigTickets);
+            }
 
           } catch (error) {
             console.error(

@@ -23,7 +23,6 @@ exports.isLogged = [
         const userData = userDoc.data();
         console.log("User document found:", {
           email: userData.email,
-          name: userData.name,
           isEmployee: userData.IsEmployee,
           isManager: userData.IsManager,
         });

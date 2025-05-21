@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth')
 const jiraClientRoutes = require('./routes/jira_client')
 const jiraConfigRoutes = require('./routes/jira_config')
 const ticketRoutes = require('./routes/ticket')
+const userRoutes = require('./routes/user')
 
 const app = express()
 
@@ -28,6 +29,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/', indexRouter)
 app.use('/auth', authRoutes)
+app.use('/user', userRoutes)
 app.use('/jira_client', jiraClientRoutes)
 app.use('/jira_config', jiraConfigRoutes)
 app.use('/ticket', ticketRoutes)
