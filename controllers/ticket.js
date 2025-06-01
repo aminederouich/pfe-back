@@ -339,3 +339,38 @@ exports.getAllTicket = [
     console.log("getAllTicket function completed.");
   },
 ];
+
+exports.addNewTicket = [
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { ticket } = req.body;
+      if (!ticket) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing ticket in request body",
+        });
+      }
+
+      // Add the ticket only in Firebase, without configId
+      await addDoc(collection(db, "tickets"), {
+        ...ticket,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastSync: new Date(),
+      });
+
+      res.status(201).json({
+        success: true,
+        message: "Ticket added successfully to Firebase",
+      });
+    } catch (error) {
+      console.error("Error in addNewTicket:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error adding new ticket",
+        error: error.message,
+      });
+    }
+  }
+];
