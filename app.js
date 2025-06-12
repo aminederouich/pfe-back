@@ -11,7 +11,7 @@ const jiraClientRoutes = require('./routes/jira_client')
 const jiraConfigRoutes = require('./routes/jira_config')
 const ticketRoutes = require('./routes/ticket')
 const userRoutes = require('./routes/user')
-const projectRoutes = require('./routes/project')
+const projectRoutes = require('./routes/project.routes')
 
 const app = express()
 
