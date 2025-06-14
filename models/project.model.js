@@ -1,5 +1,5 @@
 const { db } = require("../config/firebase");
-const { collection, getDocs, query, where, addDoc } = require("firebase/firestore");
+const { collection, getDocs, query, where, addDoc, doc, deleteDoc } = require("firebase/firestore");
 
 class Project {
   constructor(projectData) {
@@ -26,6 +26,13 @@ class Project {
     });
     return projects;
   }
+
+  static async deleteById(id) {
+    const projectRef = doc(db, "project", id);
+    await deleteDoc(projectRef);
+    return { message: `Project with id ${id} deleted successfully.` };
+   }
+
 
   async save() {
     const projectRef = collection(db, "project");

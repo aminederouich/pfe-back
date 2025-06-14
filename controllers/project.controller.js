@@ -63,3 +63,40 @@ exports.addNewProject = [
     }
   }
 ];
+
+exports.deleteProjectByID = [
+  authMiddleware,
+  async (req, res) => {
+    const { ids } = req.body;
+
+    if (!ids) {
+      return res.status(400).json({
+        error: true,
+        message: "Project ID is required",
+      });
+    }
+
+    try {
+      const deletedProject = await projectService.deleteProjectById(ids);
+
+      if (!deletedProject) {
+        return res.status(404).json({
+          error: true,
+          message: "Project not found",
+        });
+      }
+
+      res.status(200).json({
+        error: false,
+        message: "Project deleted successfully",
+        // data: deletedProject,
+      });
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      res.status(500).json({
+        error: true,
+        message: "Error deleting project",
+      });
+    }
+  }
+];

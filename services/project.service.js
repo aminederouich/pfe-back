@@ -22,6 +22,19 @@ class ProjectService {
       throw error;
     }
   }
+
+  async deleteProjectById(projectIds) {
+    try {
+      const deleted = [];
+      for (const id of projectIds) {
+        const project = await Project.deleteById(id);
+        console.log('ppp',project);
+      }
+      return { message: 'Projects deleted successfully' };
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 module.exports = new ProjectService();
