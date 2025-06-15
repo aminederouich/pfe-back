@@ -41,7 +41,7 @@ class Project {
       key: this.key,
       projectType: this.projectType,
       projectCategory: this.projectCategory,
-      projectLead: this.pprojectDatarojectLead
+      projectLead: this.projectLead
     });
     return { id: docRef.id, ...this };
   }
