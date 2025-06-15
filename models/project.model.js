@@ -1,5 +1,5 @@
 const { db } = require("../config/firebase");
-const { collection, getDocs, query, where, addDoc, doc, deleteDoc } = require("firebase/firestore");
+const { collection, getDocs, query, where, addDoc, doc, deleteDoc, setDoc } = require("firebase/firestore");
 
 class Project {
   constructor(projectData) {
@@ -41,9 +41,30 @@ class Project {
       key: this.key,
       projectType: this.projectType,
       projectCategory: this.projectCategory,
-      projectLead: this.projectLead
+      projectLead: this.pprojectDatarojectLead
     });
     return { id: docRef.id, ...this };
+  }
+  
+  static async updateById(projectId,
+        projectName,
+        key,
+        projectType,
+        projectCategory,
+        projectLead) {
+    const projectRef = doc(db, "project", projectId);
+    await setDoc(projectRef, {
+      projectName: projectName,
+      key: key,
+      projectType: projectType,
+      projectCategory: projectCategory,
+      projectLead: projectLead
+    });
+    return { projectId, ...{projectName,
+        key,
+        projectType,
+        projectCategory,
+        projectLead} };
   }
 }
 

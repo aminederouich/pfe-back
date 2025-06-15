@@ -1,11 +1,11 @@
-const Project = require('../models/project.model');
+const Project = require("../models/project.model");
 
 class ProjectService {
   async getAllProjects() {
     try {
       return await Project.findAll();
     } catch (error) {
-      throw new Error('Error retrieving projects');
+      throw new Error("Error retrieving projects");
     }
   }
 
@@ -13,7 +13,7 @@ class ProjectService {
     try {
       const exists = await Project.findByKey(projectData.key);
       if (exists) {
-        throw new Error('Project with this key already exists');
+        throw new Error("Project with this key already exists");
       }
 
       const project = new Project(projectData);
@@ -25,12 +25,32 @@ class ProjectService {
 
   async deleteProjectById(projectIds) {
     try {
-      const deleted = [];
       for (const id of projectIds) {
-        const project = await Project.deleteById(id);
-        console.log('ppp',project);
+        await Project.deleteById(id);
       }
-      return { message: 'Projects deleted successfully' };
+      return { message: "Projects deleted successfully" };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateProjectById(
+    projectId,
+    projectName,
+    key,
+    projectType,
+    projectCategory,
+    projectLead
+  ) {
+    try {
+      return await Project.updateById(
+        projectId,
+        projectName,
+        key,
+        projectType,
+        projectCategory,
+        projectLead
+      );
     } catch (error) {
       throw error;
     }

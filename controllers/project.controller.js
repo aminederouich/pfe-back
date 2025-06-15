@@ -100,3 +100,47 @@ exports.deleteProjectByID = [
     }
   }
 ];
+
+exports.updateProjectByID = [
+  authMiddleware,
+  async (req, res) => {
+    const { projectId, projectData } = req.body;
+    const { projectName, key, projectType, projectCategory, projectLead } = projectData;
+
+
+    if (!projectId || !projectName || !key || !projectType || !projectCategory || !projectLead) {
+      return res.status(400).json({
+        error: true,
+        message: "All fields are required",
+      });
+    }
+
+    try {
+      const updatedProject = await projectService.updateProjectById(projectId,
+        projectName,
+        key,
+        projectType,
+        projectCategory,
+        projectLead
+      );
+
+      if (!updatedProject) {
+        return res.status(404).json({
+          error: true,
+          message: "Project not found",
+        });
+      }
+
+      res.status(200).json({
+        error: false,
+        message: "Project updated successfully",
+      });
+    } catch (error) {
+      console.error("Error updating project:", error);
+      res.status(500).json({
+        error: true,
+        message: "Error updating project",
+      });
+    }
+  }
+];
