@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { auth, db } = require("./../config/firebase");
 const {
   signInWithEmailAndPassword,
@@ -7,7 +8,6 @@ const {
 const { doc, setDoc, getDoc } = require("firebase/firestore");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middleware/auth");
-require("dotenv").config();
 
 exports.isLogged = [
   authMiddleware,
@@ -146,6 +146,14 @@ exports.signin = async (req, res) => {
     }
 
     // Generate JWT token with additional user claims
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET is not defined in environment variables");
+      return res.status(500).json({
+        error: true,
+        message: "Server configuration error",
+      });
+    }
+
     const token = jwt.sign(
       {
         uid: user.uid,
