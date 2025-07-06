@@ -5,16 +5,16 @@ const {
   addDoc,
   setDoc,
   where,
-} = require("firebase/firestore");
-const JiraApi = require("jira-client");
-const { db } = require("../config/firebase");
-const authMiddleware = require("../middleware/auth");
+} = require('firebase/firestore');
+const JiraApi = require('jira-client');
+const { db } = require('../config/firebase');
+const authMiddleware = require('../middleware/auth');
 
 async function getJiraConfigs() {
-  console.log("Fetching Jira configurations from Firebase...");
+  console.log('Fetching Jira configurations from Firebase...');
   try {
-    const configsSnapshot = await getDocs(query(collection(db, "jiraConfig")));
-    console.log("Jira configurations snapshot retrieved.");
+    const configsSnapshot = await getDocs(query(collection(db, 'jiraConfig')));
+    console.log('Jira configurations snapshot retrieved.');
     const configs = [];
     configsSnapshot.forEach((doc) => {
       console.log(`Processing config: ${doc.id}`);
@@ -23,55 +23,55 @@ async function getJiraConfigs() {
     console.log(`Total Jira configurations fetched: ${configs.length}`);
     return configs;
   } catch (error) {
-    console.error("Error fetching Jira configurations:", error);
+    console.error('Error fetching Jira configurations:', error);
     throw error;
   }
 }
 
 async function checkJiraConnection(jira, configId) {
-  console.log("Checking Jira connection for config:", configId);
+  console.log('Checking Jira connection for config:', configId);
   try {
     const response = await jira.getCurrentUser();
-    console.log("Response from getCurrentUser:", response);
-    if (Object.prototype.hasOwnProperty.call(response, "accountId")) {
-      console.log("Connection successful for config:", configId);
+    console.log('Response from getCurrentUser:', response);
+    if (Object.prototype.hasOwnProperty.call(response, 'accountId')) {
+      console.log('Connection successful for config:', configId);
       return true;
     } else {
-      console.error("Connection failed for config:", configId);
+      console.error('Connection failed for config:', configId);
       return false;
     }
   } catch (err) {
     console.error(
-      "Error in getCurrentUser for config:",
+      'Error in getCurrentUser for config:',
       configId,
-      "Error:",
-      err
+      'Error:',
+      err,
     );
     return false;
   }
 }
 
 async function createJiraClient(config) {
-  console.log("Creating Jira client for config:", config.id);
+  console.log('Creating Jira client for config:', config.id);
   try {
-    console.log("Jira client configuration:", {
-      protocol: config.protocol || "https",
+    console.log('Jira client configuration:', {
+      protocol: config.protocol || 'https',
       host: config.host,
       username: config.username,
-      apiVersion: config.apiVersion || "2",
+      apiVersion: config.apiVersion || '2',
       strictSSL: config.strictSSL || true,
     });
 
     const jira = new JiraApi({
-      protocol: config.protocol || "https",
+      protocol: config.protocol || 'https',
       host: config.host,
       username: config.username,
       password: config.password,
-      apiVersion: config.apiVersion || "2",
+      apiVersion: config.apiVersion || '2',
       strictSSL: config.strictSSL || true,
     });
 
-    console.log("Jira client successfully created for config:", config.id);
+    console.log('Jira client successfully created for config:', config.id);
     return jira;
   } catch (error) {
     console.error(`Error creating Jira client for config ${config.id}:`, error);
@@ -88,7 +88,7 @@ async function getIssuesForProject(jira, projectKey) {
 
   do {
     console.log(
-      `Querying Jira for issues. StartAt: ${startAt}, MaxResults: ${maxResults}`
+      `Querying Jira for issues. StartAt: ${startAt}, MaxResults: ${maxResults}`,
     );
     const result = await jira.searchJira(`project = ${projectKey}`, {
       startAt,
@@ -96,27 +96,27 @@ async function getIssuesForProject(jira, projectKey) {
     });
 
     console.log(
-      `Fetched ${result.issues.length} issues. Total issues in project: ${result.total}`
+      `Fetched ${result.issues.length} issues. Total issues in project: ${result.total}`,
     );
     allIssues = allIssues.concat(result.issues);
     total = result.total;
     startAt += maxResults;
 
     console.log(
-      `Progress: Retrieved ${allIssues.length}/${total} issues so far.`
+      `Progress: Retrieved ${allIssues.length}/${total} issues so far.`,
     );
   } while (startAt < total);
 
   console.log(
-    `Completed fetching issues for project: ${projectKey}. Total issues retrieved: ${allIssues.length}`
+    `Completed fetching issues for project: ${projectKey}. Total issues retrieved: ${allIssues.length}`,
   );
   return allIssues;
 }
 
 async function fetchProjectsAndIssues(jira) {
-  console.log("Starting to fetch projects and issues...");
+  console.log('Starting to fetch projects and issues...');
   try {
-    console.log("Fetching list of projects from Jira...");
+    console.log('Fetching list of projects from Jira...');
     const projects = await jira.listProjects();
     console.log(`Number of projects retrieved: ${projects.length}`);
 
@@ -128,32 +128,32 @@ async function fetchProjectsAndIssues(jira) {
       console.log(`Fetching issues for project: ${project.key}`);
       const issues = await getIssuesForProject(jira, project.key);
       console.log(
-        `Number of issues found for project ${project.key}: ${issues.length}`
+        `Number of issues found for project ${project.key}: ${issues.length}`,
       );
 
       issues.forEach((issue) => {
         console.log(
-          `Issue details - Key: [${issue.key}], Summary: ${issue.fields.summary}`
+          `Issue details - Key: [${issue.key}], Summary: ${issue.fields.summary}`,
         );
       });
 
       console.log(
-        `Adding ${issues.length} issues from project ${project.key} to the total list.`
+        `Adding ${issues.length} issues from project ${project.key} to the total list.`,
       );
       allIssues.push(...issues);
 
       console.log(`Finished processing project: ${project.key}`);
-      console.log(""); // separation
+      console.log(''); // separation
     }
 
     console.log(
-      `\n✅ Total tickets retrieved across all projects: ${allIssues.length}`
+      `\n✅ Total tickets retrieved across all projects: ${allIssues.length}`,
     );
     return allIssues;
   } catch (error) {
     console.error(
-      "❌ Error occurred while fetching projects and issues:",
-      error
+      '❌ Error occurred while fetching projects and issues:',
+      error,
     );
     throw error;
   }
@@ -161,14 +161,14 @@ async function fetchProjectsAndIssues(jira) {
 
 async function syncTicketWithFirebase(ticket, configId) {
   console.log(
-    `Starting sync process for ticket ${ticket.key} with config ${configId}`
+    `Starting sync process for ticket ${ticket.key} with config ${configId}`,
   );
   try {
     // Check if ticket exists with same key and configId
     const ticketQuery = query(
-      collection(db, "tickets"),
-      where("key", "==", ticket.key),
-      where("configId", "==", configId)
+      collection(db, 'tickets'),
+      where('key', '==', ticket.key),
+      where('configId', '==', configId),
     );
 
     const querySnapshot = await getDocs(ticketQuery);
@@ -190,12 +190,12 @@ async function syncTicketWithFirebase(ticket, configId) {
             updatedAt: new Date(),
             lastSync: new Date(),
           },
-          { merge: true }
+          { merge: true },
         );
         console.log(`Ticket ${ticket.key} successfully updated`);
       } else {
         console.log(
-          `No changes detected for ticket ${ticket.key}. Skipping update.`
+          `No changes detected for ticket ${ticket.key}. Skipping update.`,
         );
         // Update only lastSync timestamp
         await setDoc(
@@ -203,12 +203,12 @@ async function syncTicketWithFirebase(ticket, configId) {
           {
             lastSync: new Date(),
           },
-          { merge: true }
+          { merge: true },
         );
       }
     } else {
       console.log(`Creating new ticket ${ticket.key}...`);
-      await addDoc(collection(db, "tickets"), {
+      await addDoc(collection(db, 'tickets'), {
         ...ticket,
         configId,
         createdAt: new Date(),
@@ -226,9 +226,9 @@ async function syncTicketWithFirebase(ticket, configId) {
 exports.getAllTicket = [
   authMiddleware,
   async (req, res) => {
-    console.log("Starting getAllTicket function...");
+    console.log('Starting getAllTicket function...');
     try {
-      console.log("Fetching Jira configurations...");
+      console.log('Fetching Jira configurations...');
       const configs = await getJiraConfigs();
       console.log(`Fetched ${configs.length} Jira configurations.`);
 
@@ -243,49 +243,51 @@ exports.getAllTicket = [
             const jira = await createJiraClient(config);
 
             console.log(
-              `Checking Jira connection for configuration: ${config.id}`
+              `Checking Jira connection for configuration: ${config.id}`,
             );
             const isConnected = await checkJiraConnection(jira, config.id);
 
             if (isConnected) {
               console.log(
-                `Connection successful for configuration: ${config.id}`
+                `Connection successful for configuration: ${config.id}`,
               );
               console.log(`Fetching tickets for configuration: ${config.id}`);
               const allTicket = await fetchProjectsAndIssues(jira);
 
               console.log(
-                `Fetched ${allTicket.length} tickets for configuration: ${config.id}`
+                `Fetched ${allTicket.length} tickets for configuration: ${config.id}`,
               );
               if (allTicket.length > 0) {
-                console.log("Syncing tickets with Firebase...");
+                console.log('Syncing tickets with Firebase...');
                 for (const ticket of allTicket) {
                   console.log(`Syncing ticket: ${ticket.key}`);
                   await syncTicketWithFirebase(ticket, config.id);
                 }
-                console.log("All tickets synced with Firebase.");
+                console.log('All tickets synced with Firebase.');
               }
             } else {
               console.error(
-                `Authentication failed for configuration: ${config.id}`
+                `Authentication failed for configuration: ${config.id}`,
               );
               allTicketsResult.push({
                 configId: config.id,
-                error: "Authentication failed",
+                error: 'Authentication failed',
                 success: false,
               });
             }
 
             console.log(
-              `Fetching all tickets from Firebase for configuration: ${config.id}`
+              `Fetching all tickets from Firebase for configuration: ${config.id}`,
             );
-            const querySnapshot = await getDocs(query(
-              collection(db, "tickets"),
-              where("configId", "==", config.id)
-            ));
+            const querySnapshot = await getDocs(
+              query(
+                collection(db, 'tickets'),
+                where('configId', '==', config.id),
+              ),
+            );
 
             console.log(
-              `Fetched ${querySnapshot.docs.length} tickets from Firebase.`
+              `Fetched ${querySnapshot.docs.length} tickets from Firebase.`,
             );
             if (config.enableConfig) {
               const configTickets = querySnapshot.docs.map((doc) => doc.data());
@@ -294,23 +296,23 @@ exports.getAllTicket = [
 
             // Récupérer les tickets sans configId (une seule fois à la fin de la boucle)
             if (config.id === configs[configs.length - 1].id) {
-              console.log("Fetching tickets without configId...");
-              const noConfigQuerySnapshot = await getDocs(query(
-                collection(db, "tickets"),
-                where("configId", "==", "")
-              ));
+              console.log('Fetching tickets without configId...');
+              const noConfigQuerySnapshot = await getDocs(
+                query(collection(db, 'tickets'), where('configId', '==', '')),
+              );
 
               console.log(
-                `Fetched ${noConfigQuerySnapshot.docs.length} tickets without configId`
+                `Fetched ${noConfigQuerySnapshot.docs.length} tickets without configId`,
               );
-              const noConfigTickets = noConfigQuerySnapshot.docs.map((doc) => doc.data());
+              const noConfigTickets = noConfigQuerySnapshot.docs.map((doc) =>
+                doc.data(),
+              );
               allTicketsResult.push(...noConfigTickets);
             }
-
           } catch (error) {
             console.error(
               `Error setting up Jira client for configuration ${config.id}:`,
-              error
+              error,
             );
             allTicketsResult.push({
               configId: config.id,
@@ -323,20 +325,20 @@ exports.getAllTicket = [
         }
       }
 
-      console.log("Returning results for all configurations...");
+      console.log('Returning results for all configurations...');
       res.status(200).json({
         success: true,
         results: allTicketsResult,
       });
     } catch (error) {
-      console.error("Error in getAllTicket:", error);
+      console.error('Error in getAllTicket:', error);
       res.status(500).json({
         success: false,
-        message: "Error fetching tickets",
+        message: 'Error fetching tickets',
         error: error.message,
       });
     }
-    console.log("getAllTicket function completed.");
+    console.log('getAllTicket function completed.');
   },
 ];
 
@@ -348,12 +350,12 @@ exports.addNewTicket = [
       if (!ticket) {
         return res.status(400).json({
           success: false,
-          message: "Missing ticket in request body",
+          message: 'Missing ticket in request body',
         });
       }
 
       // Add the ticket only in Firebase, without configId
-      await addDoc(collection(db, "tickets"), {
+      await addDoc(collection(db, 'tickets'), {
         ...ticket,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -362,15 +364,15 @@ exports.addNewTicket = [
 
       res.status(201).json({
         success: true,
-        message: "Ticket added successfully to Firebase",
+        message: 'Ticket added successfully to Firebase',
       });
     } catch (error) {
-      console.error("Error in addNewTicket:", error);
+      console.error('Error in addNewTicket:', error);
       res.status(500).json({
         success: false,
-        message: "Error adding new ticket",
+        message: 'Error adding new ticket',
         error: error.message,
       });
     }
-  }
+  },
 ];

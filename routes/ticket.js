@@ -1,13 +1,9 @@
-const express = require('express')
-const router = express.Router()
-const {
-  getAllTicket,
-  addNewTicket
-} = require('../controllers/ticket')
+const express = require('express');
+const router = express.Router();
+const { getAllTicket, addNewTicket } = require('../controllers/ticket');
 
-router.get('/getAllTicket', getAllTicket)
+router.get('/getAllTicket', getAllTicket);
 
-router.post('/addNewTicket', addNewTicket)
+router.post('/addNewTicket', addNewTicket);
 
-
-module.exports = router
+module.exports = router;
