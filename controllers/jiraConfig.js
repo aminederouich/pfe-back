@@ -1,7 +1,15 @@
-const { getDocs, query, collection, addDoc, doc, deleteDoc, setDoc } = require("firebase/firestore");
-const JiraApi = require("jira-client");
-const { db } = require("../config/firebase");
-const authMiddleware = require("../middleware/auth");
+const {
+  getDocs,
+  query,
+  collection,
+  addDoc,
+  doc,
+  deleteDoc,
+  setDoc,
+} = require('firebase/firestore');
+const JiraApi = require('jira-client');
+const { db } = require('../config/firebase');
+const authMiddleware = require('../middleware/auth');
 
 exports.checkConncetionJiraAPI = [
   authMiddleware,
@@ -19,7 +27,7 @@ exports.checkConncetionJiraAPI = [
     ) {
       return res.status(422).json({
         error: true,
-        message: "some info is required",
+        message: 'some info is required',
       });
     }
 
@@ -35,18 +43,18 @@ exports.checkConncetionJiraAPI = [
       .getCurrentUser()
       .then((response) => {
         if (Object.prototype.hasOwnProperty.call(response, 'accountId')) {
-          console.log("Connection successful for config:", response.accountId);
+          console.log('Connection successful for config:', response.accountId);
           return res.status(200).json({
             error: false,
-            message: "Connection successful",
+            message: 'Connection successful',
           });
         }
       })
-  
-      .catch((err) => {
+
+      .catch(() => {
         return res.status(422).json({
           error: true,
-          message: "Connection failed",
+          message: 'Connection failed',
         });
       });
   },
@@ -55,7 +63,7 @@ exports.checkConncetionJiraAPI = [
 exports.getAllConfigJiraClient = [
   authMiddleware,
   (req, res) => {
-    getDocs(query(collection(db, "jiraConfig")))
+    getDocs(query(collection(db, 'jiraConfig')))
       .then((querySnapshot) => {
         const jiraConfigs = [];
         querySnapshot.forEach((doc) => {
@@ -63,15 +71,15 @@ exports.getAllConfigJiraClient = [
         });
         res.status(200).json({
           error: false,
-          message: "Jira client configuration retrieved successfully",
+          message: 'Jira client configuration retrieved successfully',
           data: jiraConfigs,
         });
       })
       .catch((error) => {
-        console.error("Error retrieving Jira client configuration:", error);
+        console.error('Error retrieving Jira client configuration:', error);
         res.status(500).json({
           error: true,
-          message: "Error retrieving Jira client configuration",
+          message: 'Error retrieving Jira client configuration',
         });
       });
   },
@@ -93,11 +101,11 @@ exports.addConfigJiraClient = [
     ) {
       return res.status(422).json({
         error: true,
-        message: "some info is required",
+        message: 'some info is required',
       });
     }
 
-    addDoc(collection(db, "jiraConfig"), {
+    addDoc(collection(db, 'jiraConfig'), {
       protocol: protocol,
       host: host,
       username: username,
@@ -110,14 +118,14 @@ exports.addConfigJiraClient = [
         console.log(response);
         res.status(200).json({
           error: false,
-          message: "Jira client configuration added successfully",
+          message: 'Jira client configuration added successfully',
         });
       })
-  
-      .catch((err) => {
+
+      .catch(() => {
         return res.status(422).json({
           error: true,
-          message: "Connection failed",
+          message: 'Connection failed',
         });
       });
   },
@@ -130,35 +138,42 @@ exports.deleteConfigJiraClientByID = [
     if (ids.length === 0) {
       return res.status(422).json({
         error: true,
-        message: "ID is required",
+        message: 'ID is required',
       });
     }
     ids.forEach((id) => {
-
-      deleteDoc(doc(db, "jiraConfig", id))
+      deleteDoc(doc(db, 'jiraConfig', id))
         .then(() => {
           res.status(200).json({
             error: false,
-            message: "Jira client configuration deleted successfully",
+            message: 'Jira client configuration deleted successfully',
           });
         })
         .catch((error) => {
-          console.error("Error deleting Jira client configuration:", error);
+          console.error('Error deleting Jira client configuration:', error);
           res.status(500).json({
             error: true,
-            message: "Error deleting Jira client configuration",
+            message: 'Error deleting Jira client configuration',
           });
         });
-    })
+    });
   },
 ];
 
 exports.updateConfigJiraClient = [
   authMiddleware,
   (req, res) => {
-    const { id, protocol, host, username, password, apiVersion, strictSSL, enableConfig } =
-      req.body;
-      if (
+    const {
+      id,
+      protocol,
+      host,
+      username,
+      password,
+      apiVersion,
+      strictSSL,
+      enableConfig,
+    } = req.body;
+    if (
       !id ||
       !protocol ||
       !host ||
@@ -170,11 +185,11 @@ exports.updateConfigJiraClient = [
     ) {
       return res.status(422).json({
         error: true,
-        message: "some info is required",
+        message: 'some info is required',
       });
     }
 
-    setDoc(doc(db, "jiraConfig", id), {
+    setDoc(doc(db, 'jiraConfig', id), {
       protocol: protocol,
       host: host,
       username: username,
@@ -186,15 +201,15 @@ exports.updateConfigJiraClient = [
       .then(() => {
         res.status(200).json({
           error: false,
-          message: "Jira client configuration updated successfully",
+          message: 'Jira client configuration updated successfully',
         });
       })
-  
+
       .catch((error) => {
-        console.error("Error updating Jira client configuration:", error);
+        console.error('Error updating Jira client configuration:', error);
         res.status(500).json({
           error: true,
-          message: "Error updating Jira client configuration",
+          message: 'Error updating Jira client configuration',
         });
       });
   },

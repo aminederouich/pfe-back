@@ -1,5 +1,5 @@
-var express = require('express')
-var router = express.Router()
+var express = require('express');
+var router = express.Router();
 
 /**
  * Handles the GET request for the root route.
@@ -15,7 +15,7 @@ var router = express.Router()
  */
 // eslint-disable-next-line no-unused-vars
 router.get('/', function (req, res, next) {
-	res.json({ title: 'CC' })
-})
+  res.json({ title: 'CC' });
+});
 
-module.exports = router
+module.exports = router;

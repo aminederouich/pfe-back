@@ -1,27 +1,27 @@
-require("dotenv").config();
-const { auth, db } = require("./../config/firebase");
+require('dotenv').config();
+const { auth, db } = require('./../config/firebase');
 const {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
-} = require("firebase/auth");
-const { doc, setDoc, getDoc } = require("firebase/firestore");
-const jwt = require("jsonwebtoken");
-const authMiddleware = require("../middleware/auth");
+} = require('firebase/auth');
+const { doc, setDoc, getDoc } = require('firebase/firestore');
+const jwt = require('jsonwebtoken');
+const authMiddleware = require('../middleware/auth');
 
 exports.isLogged = [
   authMiddleware,
   async (req, res) => {
-    console.log("Starting isLogged check...");
+    console.log('Starting isLogged check...');
     try {
       // Get user from auth middleware
       const uid = req.user.uid;
-      console.log("User UID from token:", uid);
-      const userDoc = await getDoc(doc(db, "users", uid));
-      console.log("Firestore query completed");
+      console.log('User UID from token:', uid);
+      const userDoc = await getDoc(doc(db, 'users', uid));
+      console.log('Firestore query completed');
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        console.log("User document found:", {
+        console.log('User document found:', {
           email: userData.email,
           isEmployee: userData.IsEmployee,
           isManager: userData.IsManager,
@@ -29,7 +29,7 @@ exports.isLogged = [
 
         return res.status(200).json({
           error: false,
-          message: "User is authenticated",
+          message: 'User is authenticated',
           user: {
             IsEmployee: userData.IsEmployee,
             IsManager: userData.IsManager,
@@ -43,21 +43,21 @@ exports.isLogged = [
           },
         });
       } else {
-        console.log("User document not found for UID:", uid);
+        console.log('User document not found for UID:', uid);
         return res.status(404).json({
           error: true,
-          message: "User document not found",
+          message: 'User document not found',
         });
       }
     } catch (error) {
-      console.error("Error checking authentication status:", {
+      console.error('Error checking authentication status:', {
         errorCode: error.code,
         errorMessage: error.message,
         stack: error.stack,
       });
       return res.status(500).json({
         error: true,
-        message: "An error occurred while checking authentication status",
+        message: 'An error occurred while checking authentication status',
       });
     }
   },
@@ -71,7 +71,7 @@ exports.signup = async (req, res) => {
     if (!email || !password || !name) {
       return res.status(422).json({
         error: true,
-        message: "Email, password, and name are required",
+        message: 'Email, password, and name are required',
       });
     }
 
@@ -79,12 +79,12 @@ exports.signup = async (req, res) => {
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
-      password
+      password,
     );
     const user = userCredential.user;
 
     // Ajout du profil utilisateur dans Firestore
-    const userRef = doc(db, "users", user.uid);
+    const userRef = doc(db, 'users', user.uid);
     await setDoc(userRef, {
       uid: user.uid,
       email: user.email,
@@ -94,7 +94,7 @@ exports.signup = async (req, res) => {
     // Réponse réussie
     return res.status(201).json({
       error: false,
-      message: "User created and profile added to Firestore",
+      message: 'User created and profile added to Firestore',
       user: {
         uid: user.uid,
         email: user.email,
@@ -103,11 +103,11 @@ exports.signup = async (req, res) => {
     });
   } catch (error) {
     // Gestion des erreurs de création
-    let errorMessage = "An error occurred during sign up";
-    if (error.code === "auth/weak-password") {
-      errorMessage = "The password is too weak";
-    } else if (error.code === "auth/email-already-in-use") {
-      errorMessage = "The email address is already in use by another account";
+    let errorMessage = 'An error occurred during sign up';
+    if (error.code === 'auth/weak-password') {
+      errorMessage = 'The password is too weak';
+    } else if (error.code === 'auth/email-already-in-use') {
+      errorMessage = 'The email address is already in use by another account';
     }
 
     return res.status(500).json({
@@ -125,7 +125,7 @@ exports.signin = async (req, res) => {
     if (!email || !password) {
       return res.status(422).json({
         error: true,
-        message: "Email and password are required",
+        message: 'Email and password are required',
       });
     }
 
@@ -133,24 +133,24 @@ exports.signin = async (req, res) => {
     const userCredential = await signInWithEmailAndPassword(
       auth,
       email,
-      password
+      password,
     );
     const user = userCredential.user;
-    const userDoc = await getDoc(doc(db, "users", user.uid));
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
 
     if (!userDoc.exists()) {
       return res.status(404).json({
         error: true,
-        message: "User profile not found",
+        message: 'User profile not found',
       });
     }
 
     // Generate JWT token with additional user claims
     if (!process.env.JWT_SECRET) {
-      console.error("JWT_SECRET is not defined in environment variables");
+      console.error('JWT_SECRET is not defined in environment variables');
       return res.status(500).json({
         error: true,
-        message: "Server configuration error",
+        message: 'Server configuration error',
       });
     }
 
@@ -162,13 +162,13 @@ exports.signin = async (req, res) => {
         isManager: userDoc.data().IsManager,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "24h" }
+      { expiresIn: '24h' },
     );
 
     // Return success response with user data and token
     return res.status(200).json({
       error: false,
-      message: "Sign in successful",
+      message: 'Sign in successful',
       token,
       user: {
         uid: user.uid,
@@ -183,32 +183,32 @@ exports.signin = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Signin error:", {
+    console.error('Signin error:', {
       code: error.code,
       message: error.message,
       stack: error.stack,
     });
 
-    let errorMessage = "An error occurred during sign in";
+    let errorMessage = 'An error occurred during sign in';
     let statusCode = 401;
 
     switch (error.code) {
-      case "auth/wrong-password":
-        errorMessage = "Incorrect password";
-        break;
-      case "auth/user-not-found":
-        errorMessage = "No user found with this email";
-        break;
-      case "auth/invalid-email":
-        errorMessage = "Invalid email address";
-        break;
-      case "auth/too-many-requests":
-        errorMessage = "Too many login attempts. Please try again later.";
-        statusCode = 429;
-        break;
-      default:
-        statusCode = 500;
-        errorMessage = "Server error during authentication";
+    case 'auth/wrong-password':
+      errorMessage = 'Incorrect password';
+      break;
+    case 'auth/user-not-found':
+      errorMessage = 'No user found with this email';
+      break;
+    case 'auth/invalid-email':
+      errorMessage = 'Invalid email address';
+      break;
+    case 'auth/too-many-requests':
+      errorMessage = 'Too many login attempts. Please try again later.';
+      statusCode = 429;
+      break;
+    default:
+      statusCode = 500;
+      errorMessage = 'Server error during authentication';
     }
 
     return res.status(statusCode).json({
@@ -229,7 +229,7 @@ exports.logout = [
       if (!uid) {
         return res.status(401).json({
           error: true,
-          message: "User not authenticated",
+          message: 'User not authenticated',
         });
       }
 
@@ -244,11 +244,11 @@ exports.logout = [
 
       return res.status(200).json({
         error: false,
-        message: "User has been logged out successfully",
+        message: 'User has been logged out successfully',
         clearToken: true,
       });
     } catch (error) {
-      console.error("Logout error:", {
+      console.error('Logout error:', {
         code: error.code,
         message: error.message,
         stack: error.stack,
@@ -256,7 +256,7 @@ exports.logout = [
 
       return res.status(500).json({
         error: true,
-        message: "An error occurred during logout",
+        message: 'An error occurred during logout',
         errorDetails: error.message,
       });
     }
@@ -268,12 +268,12 @@ exports.verifyEmail = (req, res) => {
   auth.currentUser
     .sendEmailVerification()
     .then(function () {
-      return res.status(200).json({ status: "Email Verification Sent!" });
+      return res.status(200).json({ status: 'Email Verification Sent!' });
     })
     .catch(function (error) {
       let errorCode = error.code;
       let errorMessage = error.message;
-      if (errorCode === "auth/too-many-requests") {
+      if (errorCode === 'auth/too-many-requests') {
         return res.status(500).json({ error: errorMessage });
       }
     });
@@ -282,19 +282,19 @@ exports.verifyEmail = (req, res) => {
 // forget password
 exports.forgetPassword = (req, res) => {
   if (!req.body.email) {
-    return res.status(422).json({ email: "email is required" });
+    return res.status(422).json({ email: 'email is required' });
   }
   auth
     .sendPasswordResetEmail(req.body.email)
     .then(function () {
-      return res.status(200).json({ status: "Password Reset Email Sent" });
+      return res.status(200).json({ status: 'Password Reset Email Sent' });
     })
     .catch(function (error) {
       let errorCode = error.code;
       let errorMessage = error.message;
-      if (errorCode == "auth/invalid-email") {
+      if (errorCode == 'auth/invalid-email') {
         return res.status(500).json({ error: errorMessage });
-      } else if (errorCode == "auth/user-not-found") {
+      } else if (errorCode == 'auth/user-not-found') {
         return res.status(500).json({ error: errorMessage });
       }
     });

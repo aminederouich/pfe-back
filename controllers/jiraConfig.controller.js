@@ -1,5 +1,5 @@
-const jiraConfigService = require("../services/jiraConfig.service");
-const authMiddleware = require("../middleware/auth");
+const jiraConfigService = require('../services/jiraConfig.service');
+const authMiddleware = require('../middleware/auth');
 
 exports.checkConncetionJiraAPI = [
   authMiddleware,
@@ -12,10 +12,10 @@ exports.checkConncetionJiraAPI = [
         data: result.userInfo,
       });
     } catch (error) {
-      console.error("Connection test error:", error);
+      console.error('Connection test error:', error);
 
       // Validation error
-      if (error.message.includes("required")) {
+      if (error.message.includes('required')) {
         return res.status(400).json({
           error: true,
           message: error.message,
@@ -38,11 +38,11 @@ exports.getAllConfigJiraClient = [
       const configs = await jiraConfigService.getAllConfigs();
       res.status(200).json({
         error: false,
-        message: "Jira client configuration retrieved successfully",
+        message: 'Jira client configuration retrieved successfully',
         data: configs,
       });
     } catch (error) {
-      console.error("Error retrieving Jira client configuration:", error);
+      console.error('Error retrieving Jira client configuration:', error);
       res.status(500).json({
         error: true,
         message: error.message,
@@ -60,7 +60,7 @@ exports.addConfigJiraClient = [
       if (validationErrors) {
         return res.status(400).json({
           error: true,
-          message: "Validation failed",
+          message: 'Validation failed',
           details: validationErrors,
         });
       }
@@ -68,13 +68,13 @@ exports.addConfigJiraClient = [
       const newConfig = await jiraConfigService.createConfig(req.body);
       res.status(201).json({
         error: false,
-        message: "Jira client configuration added successfully",
+        message: 'Jira client configuration added successfully',
         data: newConfig,
       });
     } catch (error) {
-      console.error("Error adding Jira client configuration:", error);
+      console.error('Error adding Jira client configuration:', error);
 
-      if (error.message === "Configuration already exists for this host") {
+      if (error.message === 'Configuration already exists for this host') {
         return res.status(400).json({
           error: true,
           message: error.message,
@@ -83,7 +83,7 @@ exports.addConfigJiraClient = [
 
       res.status(500).json({
         error: true,
-        message: "Error adding Jira client configuration",
+        message: 'Error adding Jira client configuration',
       });
     }
   },
@@ -97,7 +97,7 @@ exports.deleteConfigJiraClientByID = [
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json({
         error: true,
-        message: "Array of IDs is required",
+        message: 'Array of IDs is required',
       });
     }
 
@@ -105,10 +105,10 @@ exports.deleteConfigJiraClientByID = [
       await jiraConfigService.deleteConfigById(ids);
       res.status(200).json({
         error: false,
-        message: "Jira client configuration deleted successfully",
+        message: 'Jira client configuration deleted successfully',
       });
     } catch (error) {
-      console.error("Error deleting Jira client configuration:", error);
+      console.error('Error deleting Jira client configuration:', error);
       res.status(500).json({
         error: true,
         message: error.message,
@@ -125,7 +125,7 @@ exports.updateConfigJiraClient = [
     if (!id) {
       return res.status(400).json({
         error: true,
-        message: "Configuration ID is required",
+        message: 'Configuration ID is required',
       });
     }
 
@@ -135,24 +135,24 @@ exports.updateConfigJiraClient = [
       if (validationErrors) {
         return res.status(400).json({
           error: true,
-          message: "Validation failed",
+          message: 'Validation failed',
           details: validationErrors,
         });
       }
 
       const updatedConfig = await jiraConfigService.updateConfigById(
         id,
-        configData
+        configData,
       );
       res.status(200).json({
         error: false,
-        message: "Jira client configuration updated successfully",
+        message: 'Jira client configuration updated successfully',
         data: updatedConfig,
       });
     } catch (error) {
-      console.error("Error updating Jira client configuration:", error);
+      console.error('Error updating Jira client configuration:', error);
 
-      if (error.message === "Jira configuration not found") {
+      if (error.message === 'Jira configuration not found') {
         return res.status(404).json({
           error: true,
           message: error.message,
@@ -161,7 +161,7 @@ exports.updateConfigJiraClient = [
 
       res.status(500).json({
         error: true,
-        message: "Error updating Jira client configuration",
+        message: 'Error updating Jira client configuration',
       });
     }
   },
@@ -176,7 +176,7 @@ exports.getConfigJiraClientByID = [
     if (!id) {
       return res.status(400).json({
         error: true,
-        message: "Configuration ID is required",
+        message: 'Configuration ID is required',
       });
     }
 
@@ -184,13 +184,13 @@ exports.getConfigJiraClientByID = [
       const config = await jiraConfigService.getConfigById(id);
       res.status(200).json({
         error: false,
-        message: "Jira client configuration retrieved successfully",
+        message: 'Jira client configuration retrieved successfully',
         data: config,
       });
     } catch (error) {
-      console.error("Error retrieving Jira client configuration:", error);
+      console.error('Error retrieving Jira client configuration:', error);
 
-      if (error.message === "Jira configuration not found") {
+      if (error.message === 'Jira configuration not found') {
         return res.status(404).json({
           error: true,
           message: error.message,
@@ -213,13 +213,13 @@ exports.getEnabledConfigJiraClient = [
       const configs = await jiraConfigService.getEnabledConfigs();
       res.status(200).json({
         error: false,
-        message: "Enabled Jira client configurations retrieved successfully",
+        message: 'Enabled Jira client configurations retrieved successfully',
         data: configs,
       });
     } catch (error) {
       console.error(
-        "Error retrieving enabled Jira client configurations:",
-        error
+        'Error retrieving enabled Jira client configurations:',
+        error,
       );
       res.status(500).json({
         error: true,

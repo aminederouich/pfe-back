@@ -1,4 +1,4 @@
-const { db } = require("../config/firebase");
+const { db } = require('../config/firebase');
 const {
   collection,
   getDocs,
@@ -9,7 +9,7 @@ const {
   deleteDoc,
   setDoc,
   getDoc,
-} = require("firebase/firestore");
+} = require('firebase/firestore');
 
 class JiraConfig {
   constructor(configData) {
@@ -24,57 +24,57 @@ class JiraConfig {
 
   static async findAll() {
     try {
-      const jiraConfigRef = collection(db, "jiraConfig");
+      const jiraConfigRef = collection(db, 'jiraConfig');
       const querySnapshot = await getDocs(jiraConfigRef);
       const configs = [];
       querySnapshot.forEach((doc) => {
         configs.push({ id: doc.id, ...doc.data() });
       });
       return configs;
-    } catch (error) {
-      throw new Error("Error retrieving Jira configurations");
+    } catch {
+      throw new Error('Error retrieving Jira configurations');
     }
   }
 
   static async findById(id) {
     try {
-      const configRef = doc(db, "jiraConfig", id);
+      const configRef = doc(db, 'jiraConfig', id);
       const docSnapshot = await getDoc(configRef);
       if (docSnapshot.exists()) {
         return { id: docSnapshot.id, ...docSnapshot.data() };
       }
       return null;
-    } catch (error) {
-      throw new Error("Error retrieving Jira configuration");
+    } catch {
+      throw new Error('Error retrieving Jira configuration');
     }
   }
 
   static async findByHost(host) {
     try {
-      const jiraConfigRef = collection(db, "jiraConfig");
-      const q = query(jiraConfigRef, where("host", "==", host));
+      const jiraConfigRef = collection(db, 'jiraConfig');
+      const q = query(jiraConfigRef, where('host', '==', host));
       const querySnapshot = await getDocs(q);
       return !querySnapshot.empty;
-    } catch (error) {
-      throw new Error("Error checking host existence");
+    } catch {
+      throw new Error('Error checking host existence');
     }
   }
 
   static async deleteById(id) {
     try {
-      const configRef = doc(db, "jiraConfig", id);
+      const configRef = doc(db, 'jiraConfig', id);
       await deleteDoc(configRef);
       return {
         message: `Jira configuration with id ${id} deleted successfully.`,
       };
-    } catch (error) {
-      throw new Error("Error deleting Jira configuration");
+    } catch {
+      throw new Error('Error deleting Jira configuration');
     }
   }
 
   async save() {
     try {
-      const jiraConfigRef = collection(db, "jiraConfig");
+      const jiraConfigRef = collection(db, 'jiraConfig');
       const docRef = await addDoc(jiraConfigRef, {
         protocol: this.protocol,
         host: this.host,
@@ -85,14 +85,14 @@ class JiraConfig {
         enableConfig: this.enableConfig,
       });
       return { id: docRef.id, ...this };
-    } catch (error) {
-      throw new Error("Error saving Jira configuration");
+    } catch {
+      throw new Error('Error saving Jira configuration');
     }
   }
 
   static async updateById(id, configData) {
     try {
-      const configRef = doc(db, "jiraConfig", id);
+      const configRef = doc(db, 'jiraConfig', id);
       await setDoc(configRef, {
         protocol: configData.protocol,
         host: configData.host,
@@ -103,23 +103,23 @@ class JiraConfig {
         enableConfig: configData.enableConfig,
       });
       return { id, ...configData };
-    } catch (error) {
-      throw new Error("Error updating Jira configuration");
+    } catch {
+      throw new Error('Error updating Jira configuration');
     }
   }
 
   static async findEnabledConfigs() {
     try {
-      const jiraConfigRef = collection(db, "jiraConfig");
-      const q = query(jiraConfigRef, where("enableConfig", "==", true));
+      const jiraConfigRef = collection(db, 'jiraConfig');
+      const q = query(jiraConfigRef, where('enableConfig', '==', true));
       const querySnapshot = await getDocs(q);
       const configs = [];
       querySnapshot.forEach((doc) => {
         configs.push({ id: doc.id, ...doc.data() });
       });
       return configs;
-    } catch (error) {
-      throw new Error("Error retrieving enabled Jira configurations");
+    } catch {
+      throw new Error('Error retrieving enabled Jira configurations');
     }
   }
 }

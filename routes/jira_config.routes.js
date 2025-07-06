@@ -1,23 +1,23 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const jiraConfigController = require("../controllers/jiraConfig.controller");
+const jiraConfigController = require('../controllers/jiraConfig.controller');
 
-router.post("/checkConnection", jiraConfigController.checkConncetionJiraAPI);
+router.post('/checkConnection', jiraConfigController.checkConncetionJiraAPI);
 
-router.get("/getAllConfig", jiraConfigController.getAllConfigJiraClient);
+router.get('/getAllConfig', jiraConfigController.getAllConfigJiraClient);
 router.get(
-  "/getEnabledConfig",
-  jiraConfigController.getEnabledConfigJiraClient
+  '/getEnabledConfig',
+  jiraConfigController.getEnabledConfigJiraClient,
 );
-router.get("/getConfig/:id", jiraConfigController.getConfigJiraClientByID);
+router.get('/getConfig/:id', jiraConfigController.getConfigJiraClientByID);
 
-router.post("/addConfig", jiraConfigController.addConfigJiraClient);
+router.post('/addConfig', jiraConfigController.addConfigJiraClient);
 
 router.post(
-  "/deleteConfigByID",
-  jiraConfigController.deleteConfigJiraClientByID
+  '/deleteConfigByID',
+  jiraConfigController.deleteConfigJiraClientByID,
 );
 
-router.post("/updateConfigByID", jiraConfigController.updateConfigJiraClient);
+router.post('/updateConfigByID', jiraConfigController.updateConfigJiraClient);
 
 module.exports = router;
