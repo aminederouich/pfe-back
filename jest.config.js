@@ -10,7 +10,5 @@ module.exports = {
   testTimeout: 15000,
   forceExit: true,
   detectOpenHandles: false,
-  maxWorkers: 1,
-  // Removed runInBand from config as it should be passed as CLI argument
-  setupFilesAfterEnv: ['<rootDir>/test/setup.js'],
+  maxWorkers: 1
 };
