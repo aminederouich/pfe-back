@@ -1,15 +1,16 @@
-const authController = require('../controllers/auth.controller');
-const AuthService = require('../services/auth.service');
-
 // Mock du service d'authentification
 jest.mock('../services/auth.service');
 
 // Mock du middleware d'authentification
-const mockAuthMiddleware = jest.fn((req, res, next) => {
-  req.user = { uid: 'test-uid-123' };
-  next();
+jest.mock('../middleware/auth', () => {
+  return jest.fn((req, res, next) => {
+    req.user = { uid: 'test-uid-123' };
+    next();
+  });
 });
-jest.mock('../middleware/auth', () => mockAuthMiddleware);
+
+const authController = require('../controllers/auth.controller');
+const AuthService = require('../services/auth.service');
 
 describe('Auth Controller Unit Tests', () => {
   let req, res, next;
