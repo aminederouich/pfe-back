@@ -26,6 +26,16 @@ describe('Auth Routes Input Validation Tests', () => {
     jest.clearAllMocks();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  afterAll((done) => {
+    // Nettoyage pour éviter les fuites
+    app.removeAllListeners();
+    done();
+  });
+
   describe('POST /auth/signup - Input Validation', () => {
     test('should handle valid signup data', async () => {
       const validData = {

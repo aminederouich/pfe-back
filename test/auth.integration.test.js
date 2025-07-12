@@ -33,6 +33,16 @@ describe('Auth Routes Integration Tests', () => {
     jest.clearAllMocks();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  afterAll((done) => {
+    // Nettoyage pour éviter les fuites
+    app.removeAllListeners();
+    done();
+  });
+
   describe('POST /auth/signup - User Registration', () => {
     test('should register a new user with valid data', async () => {
       const userData = {

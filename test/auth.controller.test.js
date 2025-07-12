@@ -27,6 +27,15 @@ describe('Auth Controller Unit Tests', () => {
     jest.clearAllMocks();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  afterAll((done) => {
+    // Nettoyage pour éviter les fuites
+    done();
+  });
+
   describe('signup', () => {
     test('should register user successfully', async () => {
       req.body = {

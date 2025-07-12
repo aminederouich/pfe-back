@@ -10,6 +10,16 @@ describe('Auth Routes Configuration Tests', () => {
     app.use('/auth', authRoutes);
   });
 
+  afterEach(() => {
+    // Nettoyage des listeners
+    app.removeAllListeners();
+  });
+
+  afterAll((done) => {
+    // Nettoyage final
+    done();
+  });
+
   describe('Route Configuration', () => {
     test('should have all required routes defined', () => {
       const routes = [];
