@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
 const indexRouter = require('./routes/index');
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/auth.routes');
 const jiraClientRoutes = require('./routes/jira_client');
 const jiraConfigRoutes = require('./routes/jira_config.routes');
 const ticketRoutes = require('./routes/ticket');

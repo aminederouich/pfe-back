@@ -7,13 +7,16 @@ const {
   signin,
   forgetPassword,
   logout,
-} = require('../controllers/auth');
+  verifyEmail,
+} = require('../controllers/auth.controller');
 
 router.post('/signup', signup);
 
 router.post('/signin', signin);
 
 router.post('/forget-password', forgetPassword);
+
+router.post('/verify-email', verifyEmail);
 
 router.get('/check-auth', isLogged);
 

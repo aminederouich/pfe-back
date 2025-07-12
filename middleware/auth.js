@@ -1,7 +1,7 @@
 require('dotenv').config();
-const jwt = require('jsonwebtoken');
+const AuthService = require('../services/auth.service');
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   console.log('Starting authentication middleware...');
   try {
     // Get token from header
@@ -12,38 +12,35 @@ const authMiddleware = (req, res, next) => {
       console.log('Authentication failed: No token provided');
       return res.status(401).json({
         error: true,
-        message: 'Authentication required',
+        message: 'Authentication required'
       });
     }
 
-    // Verify token
+    // Verify token using AuthService
     console.log('Attempting to verify JWT token...');
-    if (!process.env.JWT_SECRET) {
-      console.error('JWT_SECRET is not defined in environment variables');
-      return res.status(500).json({
-        error: true,
-        message: 'Server configuration error',
-      });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const result = await AuthService.verifyToken(token);
     console.log('JWT verification successful:', {
-      uid: decoded.uid,
-      email: decoded.email,
+      uid: result.tokenData.uid,
+      email: result.tokenData.email
     });
 
     // Add user data to request object
-    req.user = decoded;
+    req.user = result.tokenData;
     next();
   } catch (error) {
-    console.error('Authentication error:', {
-      errorMessage: error.message,
-      errorName: error.name,
-      stack: error.stack,
-    });
-    return res.status(401).json({
+    console.error('Authentication error:', error.message);
+    
+    let statusCode = 401;
+    let message = 'Invalid or expired token';
+    
+    if (error.message === 'JWT_SECRET is not defined') {
+      statusCode = 500;
+      message = 'Server configuration error';
+    }
+    
+    return res.status(statusCode).json({
       error: true,
-      message: 'Invalid or expired token',
+      message: message
     });
   }
 };

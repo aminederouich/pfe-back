@@ -6,6 +6,7 @@
 		"start": "nodemon ./bin/www",
 		"test": "jest",
 		"test:watch": "jest --watch",
+		"test:coverage": "jest --coverage",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
 		"lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
 	},
