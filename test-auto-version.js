@@ -2,7 +2,7 @@
 
 /**
  * 🧪 Test Script for Auto-Versioning System
- * 
+ *
  * This script validates that all components are properly configured
  */
 
@@ -16,7 +16,7 @@ console.log('📁 Checking workflows...');
 const workflowsDir = '.github/workflows';
 const requiredWorkflows = [
   'auto-version.yml',
-  'update-package-version.yml'
+  'update-package-version.yml',
 ];
 
 let allWorkflowsExist = true;
@@ -34,25 +34,25 @@ requiredWorkflows.forEach(workflow => {
 console.log('\n📦 Checking package.json...');
 try {
   const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-  
+
   if (packageJson.version) {
     console.log(`✅ Current version: ${packageJson.version}`);
   } else {
     console.log('❌ No version in package.json');
   }
-  
+
   if (packageJson.scripts && packageJson.scripts.test) {
     console.log('✅ Test script available');
   } else {
     console.log('❌ No test script in package.json');
   }
-  
+
   if (packageJson.scripts && packageJson.scripts.lint) {
     console.log('✅ Lint script available');
   } else {
     console.log('❌ No lint script in package.json');
   }
-  
+
 } catch (error) {
   console.log('❌ Error reading package.json:', error.message);
 }
@@ -60,7 +60,7 @@ try {
 // Test 3: Check if documentation exists
 console.log('\n📚 Checking documentation...');
 const docFiles = [
-  'docs/AUTO_VERSIONING_GUIDE.md'
+  'docs/AUTO_VERSIONING_GUIDE.md',
 ];
 
 docFiles.forEach(docFile => {
