@@ -1,6 +1,6 @@
 {
 	"name": "backend",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"private": true,
 	"scripts": {
 		"start": "nodemon ./bin/www",
@@ -8,7 +8,13 @@
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --coverage",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-		"lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
+		"lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+		"version:patch": "npm version patch && git push && git push --tags",
+		"version:minor": "npm version minor && git push && git push --tags",
+		"version:major": "npm version major && git push && git push --tags",
+		"release:patch": "npm run lint && npm test && npm run version:patch",
+		"release:minor": "npm run lint && npm test && npm run version:minor",
+		"release:major": "npm run lint && npm test && npm run version:major"
 	},
 	"engines": {
 		"node": "22.11.0"
