@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-nested-ternary */
 
 /**
  * 🔍 Script de diagnostic pour l'auto-versioning
@@ -16,8 +17,8 @@ console.log('=====================================\n');
 const workflowDir = '.github/workflows';
 const requiredWorkflows = [
   'auto-version.yml',
-  'create-release.yml', 
-  'update-package-version.yml'
+  'create-release.yml',
+  'update-package-version.yml',
 ];
 
 console.log('📁 Checking workflow files...');
@@ -35,17 +36,17 @@ console.log('\n📦 Checking package.json...');
 try {
   const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
   console.log(`  ✅ Current version: ${pkg.version}`);
-  
+
   if (pkg.scripts && pkg.scripts.lint) {
     console.log(`  ✅ Lint script: ${pkg.scripts.lint}`);
   } else {
-    console.log(`  ⚠️  No lint script found`);
+    console.log('  ⚠️  No lint script found');
   }
-  
+
   if (pkg.scripts && pkg.scripts.test) {
     console.log(`  ✅ Test script: ${pkg.scripts.test}`);
   } else {
-    console.log(`  ⚠️  No test script found`);
+    console.log('  ⚠️  No test script found');
   }
 } catch (error) {
   console.log(`  ❌ Error reading package.json: ${error.message}`);
@@ -56,15 +57,15 @@ console.log('\n🌿 Checking Git status...');
 try {
   const branch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
   console.log(`  ✅ Current branch: ${branch}`);
-  
+
   const lastCommit = execSync('git log -1 --pretty=format:"%h - %s"', { encoding: 'utf8' }).trim();
   console.log(`  ✅ Last commit: ${lastCommit}`);
-  
+
   const status = execSync('git status --porcelain', { encoding: 'utf8' }).trim();
   if (status) {
-    console.log(`  ⚠️  Uncommitted changes detected`);
+    console.log('  ⚠️  Uncommitted changes detected');
   } else {
-    console.log(`  ✅ Working tree clean`);
+    console.log('  ✅ Working tree clean');
   }
 } catch (error) {
   console.log(`  ❌ Git error: ${error.message}`);
@@ -76,8 +77,8 @@ try {
   const commits = execSync('git log -5 --pretty=format:"%s"', { encoding: 'utf8' })
     .split('\n')
     .filter(msg => msg.trim());
-  
-  commits.forEach((commit, index) => {
+
+  commits.forEach((commit) => {
     const isConventional = /^(feat|fix|docs|style|refactor|perf|test|chore)(\(.+\))?!?:/.test(commit);
     const isMerge = commit.startsWith('Merge pull request');
     const icon = isConventional ? '✅' : (isMerge ? '🔄' : '⚠️');
