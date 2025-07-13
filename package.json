@@ -17,7 +17,7 @@
 		"release:major": "npm run lint && npm test && npm run version:major"
 	},
 	"engines": {
-		"node": "22.11.0"
+		"node": ">=22.11.0"
 	},
 	"dependencies": {
 		"body-parser": "^1.20.3",
