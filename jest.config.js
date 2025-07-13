@@ -10,5 +10,5 @@ module.exports = {
   testTimeout: 15000,
   forceExit: true,
   detectOpenHandles: false,
-  maxWorkers: 1
+  maxWorkers: 1,
 };

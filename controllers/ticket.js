@@ -9,6 +9,7 @@ const {
 const JiraApi = require('jira-client');
 const { db } = require('../config/firebase');
 const authMiddleware = require('../middleware/auth');
+const HTTP_STATUS = require('../constants/httpStatus');
 
 async function getJiraConfigs() {
   console.log('Fetching Jira configurations from Firebase...');
@@ -36,10 +37,10 @@ async function checkJiraConnection(jira, configId) {
     if (Object.prototype.hasOwnProperty.call(response, 'accountId')) {
       console.log('Connection successful for config:', configId);
       return true;
-    } else {
-      console.error('Connection failed for config:', configId);
-      return false;
     }
+    console.error('Connection failed for config:', configId);
+    return false;
+
   } catch (err) {
     console.error(
       'Error in getCurrentUser for config:',
@@ -99,7 +100,7 @@ async function getIssuesForProject(jira, projectKey) {
       `Fetched ${result.issues.length} issues. Total issues in project: ${result.total}`,
     );
     allIssues = allIssues.concat(result.issues);
-    total = result.total;
+    ({ total } = result);
     startAt += maxResults;
 
     console.log(
@@ -172,7 +173,7 @@ async function syncTicketWithFirebase(ticket, configId) {
     );
 
     const querySnapshot = await getDocs(ticketQuery);
-    const existingTicket = querySnapshot.docs[0];
+    const [existingTicket] = querySnapshot.docs;
 
     if (existingTicket) {
       // Compare existing ticket with new ticket data
@@ -225,14 +226,14 @@ async function syncTicketWithFirebase(ticket, configId) {
 
 exports.getAllTicket = [
   authMiddleware,
-  async (req, res) => {
+  async(req, res) => {
     console.log('Starting getAllTicket function...');
     try {
       console.log('Fetching Jira configurations...');
       const configs = await getJiraConfigs();
       console.log(`Fetched ${configs.length} Jira configurations.`);
 
-      let allTicketsResult = [];
+      const allTicketsResult = [];
 
       for (const config of configs) {
         console.log(`Processing configuration: ${config.id}`);
@@ -326,13 +327,13 @@ exports.getAllTicket = [
       }
 
       console.log('Returning results for all configurations...');
-      res.status(200).json({
+      res.status(HTTP_STATUS.OK).json({
         success: true,
         results: allTicketsResult,
       });
     } catch (error) {
       console.error('Error in getAllTicket:', error);
-      res.status(500).json({
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Error fetching tickets',
         error: error.message,
@@ -344,11 +345,11 @@ exports.getAllTicket = [
 
 exports.addNewTicket = [
   authMiddleware,
-  async (req, res) => {
+  async(req, res) => {
     try {
       const { ticket } = req.body;
       if (!ticket) {
-        return res.status(400).json({
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
           message: 'Missing ticket in request body',
         });
@@ -362,13 +363,13 @@ exports.addNewTicket = [
         lastSync: new Date(),
       });
 
-      res.status(201).json({
+      res.status(HTTP_STATUS.CREATED).json({
         success: true,
         message: 'Ticket added successfully to Firebase',
       });
     } catch (error) {
       console.error('Error in addNewTicket:', error);
-      res.status(500).json({
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Error adding new ticket',
         error: error.message,

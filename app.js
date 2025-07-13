@@ -38,16 +38,19 @@ app.use('/jira_config', jiraConfigRoutes);
 app.use('/ticket', ticketRoutes);
 app.use('/project', projectRoutes);
 
+// HTTP status codes
+const HTTP_STATUS_NOT_FOUND = 404;
+const HTTP_STATUS_INTERNAL_SERVER_ERROR = 500;
+
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
+app.use((req, res, next) => {
+  next(createError(HTTP_STATUS_NOT_FOUND));
 });
 
 // error handler
 // eslint-disable-next-line no-unused-vars
-app.use(function (err, req, res, next) {
-  // send the error response as JSON
-  res.status(err.status || 500);
+app.use((err, req, res, next) => {
+  res.status(err.status || HTTP_STATUS_INTERNAL_SERVER_ERROR);
   res.json({
     status: err.status,
     message: err.message,

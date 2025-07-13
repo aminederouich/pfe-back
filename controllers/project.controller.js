@@ -1,19 +1,20 @@
 const projectService = require('../services/project.service');
 const authMiddleware = require('../middleware/auth');
+const HTTP_STATUS = require('../constants/httpStatus');
 
 exports.getAllProject = [
   authMiddleware,
-  async (req, res) => {
+  async(req, res) => {
     try {
       const projects = await projectService.getAllProjects();
-      res.status(200).json({
+      res.status(HTTP_STATUS.OK).json({
         error: false,
         message: 'Projects retrieved successfully',
         data: projects,
       });
     } catch (error) {
       console.error('Error retrieving projects:', error);
-      res.status(500).json({
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         error: true,
         message: error.message,
       });
@@ -23,7 +24,7 @@ exports.getAllProject = [
 
 exports.addNewProject = [
   authMiddleware,
-  async (req, res) => {
+  async(req, res) => {
     const { projectName, key, projectType, projectCategory, projectLead } =
       req.body;
 
@@ -34,7 +35,7 @@ exports.addNewProject = [
       !projectCategory ||
       !projectLead
     ) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         error: true,
         message: 'All fields are required',
       });
@@ -49,21 +50,21 @@ exports.addNewProject = [
         projectLead,
       });
 
-      res.status(201).json({
+      res.status(HTTP_STATUS.CREATED).json({
         error: false,
         message: 'Project added successfully',
         data: newProject,
       });
     } catch (error) {
       if (error.message === 'Project with this key already exists') {
-        return res.status(400).json({
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
           error: true,
           message: error.message,
         });
       }
 
       console.error('Error adding project:', error);
-      res.status(500).json({
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         error: true,
         message: 'Error adding project',
       });
@@ -73,11 +74,11 @@ exports.addNewProject = [
 
 exports.deleteProjectByID = [
   authMiddleware,
-  async (req, res) => {
+  async(req, res) => {
     const { ids } = req.body;
 
     if (!ids) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         error: true,
         message: 'Project ID is required',
       });
@@ -87,20 +88,20 @@ exports.deleteProjectByID = [
       const deletedProject = await projectService.deleteProjectById(ids);
 
       if (!deletedProject) {
-        return res.status(404).json({
+        return res.status(HTTP_STATUS.NOT_FOUND).json({
           error: true,
           message: 'Project not found',
         });
       }
 
-      res.status(200).json({
+      res.status(HTTP_STATUS.OK).json({
         error: false,
         message: 'Project deleted successfully',
         // data: deletedProject,
       });
     } catch (error) {
       console.error('Error deleting project:', error);
-      res.status(500).json({
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         error: true,
         message: 'Error deleting project',
       });
@@ -110,7 +111,7 @@ exports.deleteProjectByID = [
 
 exports.updateProjectByID = [
   authMiddleware,
-  async (req, res) => {
+  async(req, res) => {
     const { projectId, projectData } = req.body;
     const { projectName, key, projectType, projectCategory, projectLead } =
       projectData;
@@ -123,7 +124,7 @@ exports.updateProjectByID = [
       !projectCategory ||
       !projectLead
     ) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         error: true,
         message: 'All fields are required',
       });
@@ -140,19 +141,19 @@ exports.updateProjectByID = [
       );
 
       if (!updatedProject) {
-        return res.status(404).json({
+        return res.status(HTTP_STATUS.NOT_FOUND).json({
           error: true,
           message: 'Project not found',
         });
       }
 
-      res.status(200).json({
+      res.status(HTTP_STATUS.OK).json({
         error: false,
         message: 'Project updated successfully',
       });
     } catch (error) {
       console.error('Error updating project:', error);
-      res.status(500).json({
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         error: true,
         message: 'Error updating project',
       });

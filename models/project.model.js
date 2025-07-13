@@ -64,11 +64,11 @@ class Project {
   ) {
     const projectRef = doc(db, 'project', projectId);
     await setDoc(projectRef, {
-      projectName: projectName,
-      key: key,
-      projectType: projectType,
-      projectCategory: projectCategory,
-      projectLead: projectLead,
+      projectName,
+      key,
+      projectType,
+      projectCategory,
+      projectLead,
     });
     return {
       projectId,
