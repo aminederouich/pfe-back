@@ -33,7 +33,7 @@ class User {
         photoURL: userData.photoURL || null,
         phoneNumber: userData.phoneNumber || null,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       await setDoc(userRef, userDoc);
@@ -73,11 +73,11 @@ class User {
       const userRef = doc(db, 'users', uid);
       const updatedData = {
         ...updateData,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
-      
+
       await updateDoc(userRef, updatedData);
-      
+
       // Return updated user
       const updatedUser = await User.findByUid(uid);
       return updatedUser;
@@ -102,7 +102,7 @@ class User {
       photoURL: this.photoURL,
       phoneNumber: this.phoneNumber,
       createdAt: this.createdAt,
-      updatedAt: this.updatedAt
+      updatedAt: this.updatedAt,
     };
   }
 
@@ -115,7 +115,7 @@ class User {
       uid: this.uid,
       email: this.email,
       isEmployee: this.isEmployee,
-      isManager: this.isManager
+      isManager: this.isManager,
     };
   }
 }

@@ -5,7 +5,7 @@ const {
   createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
-  sendEmailVerification
+  sendEmailVerification,
 } = require('firebase/auth');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
@@ -34,17 +34,17 @@ class AuthService {
         uid: firebaseUser.uid,
         email: firebaseUser.email,
         FirstName: firstName,
-        LastName: lastName
+        LastName: lastName,
       });
 
       return {
         success: true,
         message: 'User created successfully',
-        user: user.toPublicFormat()
+        user: user.toPublicFormat(),
       };
     } catch (error) {
       console.error('Registration error:', error);
-      
+
       // Handle specific Firebase Auth errors
       if (error.code === 'auth/weak-password') {
         throw new Error('The password is too weak');
@@ -53,7 +53,7 @@ class AuthService {
       } else if (error.message === 'Failed to create user in database') {
         throw new Error('Failed to create user profile');
       }
-      
+
       throw new Error('Registration failed');
     }
   }
@@ -89,11 +89,11 @@ class AuthService {
         success: true,
         message: 'Sign in successful',
         token,
-        user: user.toPublicFormat()
+        user: user.toPublicFormat(),
       };
     } catch (error) {
       console.error('Login error:', error);
-      
+
       // Handle specific Firebase Auth errors
       switch (error.code) {
       case 'auth/wrong-password':
@@ -122,7 +122,7 @@ class AuthService {
       await signOut(auth);
       return {
         success: true,
-        message: 'User has been logged out successfully'
+        message: 'User has been logged out successfully',
       };
     } catch (error) {
       console.error('Logout error:', error);
@@ -144,11 +144,11 @@ class AuthService {
       await sendPasswordResetEmail(auth, email);
       return {
         success: true,
-        message: 'Password reset email sent'
+        message: 'Password reset email sent',
       };
     } catch (error) {
       console.error('Forgot password error:', error);
-      
+
       switch (error.code) {
       case 'auth/invalid-email':
         throw new Error('Invalid email address');
@@ -173,11 +173,11 @@ class AuthService {
       await sendEmailVerification(auth.currentUser);
       return {
         success: true,
-        message: 'Email verification sent'
+        message: 'Email verification sent',
       };
     } catch (error) {
       console.error('Email verification error:', error);
-      
+
       if (error.code === 'auth/too-many-requests') {
         throw new Error('Too many requests. Please try again later.');
       }
@@ -198,7 +198,7 @@ class AuthService {
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await User.findByUid(decoded.uid);
-      
+
       if (!user) {
         throw new Error('User not found');
       }
@@ -206,11 +206,11 @@ class AuthService {
       return {
         success: true,
         user: user.toPublicFormat(),
-        tokenData: decoded
+        tokenData: decoded,
       };
     } catch (error) {
       console.error('Token verification error:', error);
-      
+
       if (error.name === 'JsonWebTokenError') {
         throw new Error('Invalid token');
       } else if (error.name === 'TokenExpiredError') {
@@ -247,7 +247,7 @@ class AuthService {
 
       return {
         success: true,
-        user: user.toPublicFormat()
+        user: user.toPublicFormat(),
       };
     } catch (error) {
       console.error('Get user profile error:', error);

@@ -16,7 +16,7 @@ class ProjectService {
     }
 
     const project = new Project(projectData);
-    return await project.save();
+    return project.save();
   }
 
   async deleteProjectById(projectIds) {
@@ -34,7 +34,7 @@ class ProjectService {
     projectCategory,
     projectLead,
   ) {
-    return await Project.updateById(
+    return Project.updateById(
       projectId,
       projectName,
       key,

@@ -18,7 +18,7 @@ class JiraConfigService {
     }
 
     const config = new JiraConfig(configData);
-    return await config.save();
+    return config.save();
   }
 
   async deleteConfigById(configIds) {
@@ -31,7 +31,7 @@ class JiraConfigService {
   }
 
   async updateConfigById(id, configData) {
-    return await JiraConfig.updateById(id, configData);
+    return JiraConfig.updateById(id, configData);
   }
 
   async getConfigById(id) {
@@ -89,12 +89,12 @@ class JiraConfigService {
             emailAddress: response.emailAddress,
           },
         };
-      } else {
-        throw new Error('Invalid response from Jira API');
       }
+      throw new Error('Invalid response from Jira API');
+
     } catch (error) {
       console.error('Jira connection test failed:', error.message);
-      throw new Error('Connection failed: ' + error.message);
+      throw new Error(`Connection failed: ${error.message}`);
     }
   }
 
