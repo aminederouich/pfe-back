@@ -1,0 +1,86 @@
+name: 📝 Update Package Version
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [ opened, synchronize ]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-package-version:
+    if: startsWith(github.event.pull_request.title, 'chore(release)')
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout PR branch
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        ref: ${{ github.event.pull_request.head.ref }}
+
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.11.0'
+
+    - name: 📈 Extract version from PR title
+      id: extract-version
+      run: |
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        echo "PR Title: $PR_TITLE"
+        
+        # Extract version from title like "🟡 chore(release): bump version to 1.2.3"
+        VERSION=$(echo "$PR_TITLE" | sed -n 's/.*bump version to \([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p')
+        
+        if [ -z "$VERSION" ]; then
+          echo "❌ Could not extract version from PR title"
+          exit 1
+        fi
+        
+        echo "Extracted version: $VERSION"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: 📦 Update package.json version
+      run: |
+        VERSION="${{ steps.extract-version.outputs.version }}"
+        echo "Updating package.json to version: $VERSION"
+        
+        # Update package.json without git operations
+        npm version "$VERSION" --no-git-tag-version --no-commit-hooks
+        
+        echo "✅ package.json updated to version $VERSION"
+
+    - name: ⚙️ Configure Git
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action Bot"
+
+    - name: 💾 Commit version update
+      run: |
+        VERSION="${{ steps.extract-version.outputs.version }}"
+        
+        # Check if there are changes to commit
+        if git diff --quiet package.json; then
+          echo "📋 No changes to package.json - version already up to date"
+          exit 0
+        fi
+        
+        git add package.json
+        git commit -m "chore: update package.json to version $VERSION
+
+        🤖 Automated package.json update for release PR
+        
+        [skip ci]"
+        
+        git push origin HEAD
+        echo "✅ Successfully committed and pushed package.json update"
+
+    - name: 🎊 Success notification
+      run: |
+        VERSION="${{ steps.extract-version.outputs.version }}"
+        echo "🎉 SUCCESS! Package.json updated!"
+        echo "📦 New version: $VERSION"
+        echo "🔄 Changes pushed to PR branch"
