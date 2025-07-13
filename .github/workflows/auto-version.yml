@@ -81,8 +81,10 @@ jobs:
         echo "New version: $NEW_VERSION"
         echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
         
-        # Reset package.json to original state for the PR workflow
-        git checkout package.json
+        # IMPORTANT: Reset package files to original state
+        # The actual version update will be done in the PR workflow
+        git checkout package.json package-lock.json
+        echo "✅ Package files reset - version update will be done in PR"
 
     - name: 🌿 Create version bump PR
       uses: peter-evans/create-pull-request@v5
