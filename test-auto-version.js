@@ -17,6 +17,7 @@ const workflowsDir = '.github/workflows';
 const requiredWorkflows = [
   'auto-version.yml',
   'update-package-version.yml',
+  'create-release.yml',
 ];
 
 let allWorkflowsExist = true;
@@ -79,6 +80,7 @@ if (allWorkflowsExist) {
   console.log('\n🚀 To test the system:');
   console.log('   git commit -m "feat: test auto-versioning system"');
   console.log('   git push origin main');
+  console.log('   OR merge any PR - the workflow will trigger automatically!');
 } else {
   console.log('❌ Some workflows are missing');
   console.log('❌ System not ready');
