@@ -105,3 +105,4 @@ jobs:
 
           ---
           ✅ Please review and merge.
+        base: main
