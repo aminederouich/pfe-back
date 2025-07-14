@@ -7,7 +7,7 @@ class User {
     this.email = userData.email;
     this.firstName = userData.FirstName || null;
     this.lastName = userData.LastName || null;
-    this.isEmployee = userData.IsEmployee || true;
+    this.isEmployee = userData.IsEmployee || false;
     this.isManager = userData.IsManager || false;
     this.photoURL = userData.photoURL || null;
     this.phoneNumber = userData.phoneNumber || null;
