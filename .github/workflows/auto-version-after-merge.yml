@@ -94,6 +94,9 @@ jobs:
         git push https://x-access-token:$PAT_TOKEN@github.com/${{ github.repository }} "$RELEASE_BRANCH"
         git push https://x-access-token:$PAT_TOKEN@github.com/${{ github.repository }} "v$NEW_VERSION"
 
+    - name: 🌀 Fetch remote branches to avoid ambiguous revision error
+      run: git fetch --all --prune
+      
     - name: 🔁 Create Pull Request
       uses: peter-evans/create-pull-request@v6
       with:
