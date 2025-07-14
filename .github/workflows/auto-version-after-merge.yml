@@ -69,6 +69,10 @@ jobs:
         BUMP_TYPE="${{ steps.analyze-commits.outputs.bump_type }}"
         npm version $BUMP_TYPE --no-git-tag-version
         NEW_VERSION=$(node -p "require('./package.json').version")
+        
+        # Update version in README.md badge
+        sed -i "s/version-[0-9]\+\.[0-9]\+\.[0-9]\+-blue/version-$NEW_VERSION-blue/g" README.md
+        
         echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
     - name: 🚀 Create release branch and push
@@ -83,7 +87,7 @@ jobs:
 
         git checkout -b "$RELEASE_BRANCH"
 
-        git add package.json package-lock.json
+        git add package.json package-lock.json README.md
         git commit -m "chore(release): bump version to $NEW_VERSION [skip ci]"
         git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION"
 
