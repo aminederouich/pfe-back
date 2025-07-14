@@ -42,7 +42,7 @@ const testCommits = [
 testCommits.forEach(test => {
   let detectedType = 'patch'; // default
   let detectedEmoji = '🟢'; // default
-  
+
   if (test.message.match(/(^feat(\(.+\))?!:|^fix(\(.+\))?!:|^refactor(\(.+\))?!:|BREAKING CHANGE)/)) {
     detectedType = 'major';
     detectedEmoji = '🔴';
@@ -53,10 +53,10 @@ testCommits.forEach(test => {
     detectedType = 'patch';
     detectedEmoji = '🟢';
   }
-  
+
   const isCorrect = detectedType === test.expected && detectedEmoji === test.emoji;
   const status = isCorrect ? '✅' : '❌';
-  
+
   console.log(`  ${status} "${test.message}" → ${detectedEmoji} ${detectedType} (expected: ${test.emoji} ${test.expected})`);
 });
 
