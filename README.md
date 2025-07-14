@@ -2,11 +2,12 @@
 
 A modern Node.js/Express backend API for project management and Jira integration, built as part of a PFE (Projet de Fin d'Études) application with **automated versioning** and **professional development practices**.
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/aminederouich/pfe-back)
+[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](https://github.com/aminederouich/pfe-back)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D22.11.0-brightgreen.svg)](https://nodejs.org/)
 [![Tests](https://img.shields.io/badge/tests-32%20passing-brightgreen.svg)](https://github.com/aminederouich/pfe-back/actions)
 [![ESLint](https://img.shields.io/badge/ESLint-configured-brightgreen.svg)](https://eslint.org/)
 [![Auto Versioning](https://img.shields.io/badge/versioning-automated-orange.svg)](https://semver.org/)
+[![Branch Protection](https://img.shields.io/badge/branch-protected-red.svg)](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches)
 
 ## 🎯 Overview
 
@@ -16,10 +17,24 @@ This backend serves as the middleware between a frontend application and externa
 - 🔗 Jira configuration and integration for issue tracking
 - 🎫 Ticket management and synchronization
 - 🌐 RESTful API endpoints for frontend consumption
-- 🤖 **Automated versioning** with GitHub Actions
+- 🤖 **Automated versioning** with GitHub Actions (after PR merge)
+- 🛡️ **Branch protection compatible** workflows with Personal Access Token integration
 - ✅ **Comprehensive testing** and **code quality** standards
+- 🔐 **Branch protection** compatible auto-versioning system
 
-## 🛠️ Tech Stack
+## � Table of Contents
+
+1. [🛠️ Tech Stack](#️-tech-stack)
+2. [🏗️ Architecture](#️-architecture)
+3. [🚀 Getting Started](#-getting-started)
+4. [⚙️ Configuration](#️-configuration)
+5. [🔄 Automatic Versioning System](#-automatic-versioning-system)
+6. [🧪 Testing](#-testing)
+7. [📚 API Documentation](#-api-documentation)
+8. [🔒 Security & Best Practices](#-security--best-practices)
+9. [🤝 Contributing](#contributing)
+
+## �🛠️ Tech Stack
 
 - **Runtime**: Node.js 22.11.0
 - **Framework**: Express.js
@@ -63,31 +78,46 @@ This backend serves as the middleware between a frontend application and externa
 │   ├── jiraConfig.test.js        # Jira config tests (12 tests)
 │   └── ...
 ├── docs/               # Documentation
-│   └── AUTO-VERSIONING.md       # Auto-versioning guide
+│   ├── AUTO_VERSION_AFTER_MERGE.md  # Auto-versioning guide
+│   ├── BRANCH_PROTECTION_SOLUTION.md # Branch protection setup
+│   └── ...                           # Additional guides
 ├── .github/workflows/  # GitHub Actions
-│   └── version-bump.yml          # Automated versioning workflow
+│   ├── auto-version-after-merge.yml  # Automated versioning workflow
+│   ├── auto-version-hybrid.yml       # Alternative versioning method
+│   ├── auto-version-api.yml          # API-based versioning (fallback)
+│   └── node.js.yml                   # CI/CD testing workflow
+├── validate-auto-version.js           # Auto-versioning system validation
+├── diagnose-and-fix.js                # System diagnostic and troubleshooting
 └── .eslintrc.js        # ESLint configuration with 40+ rules
 ```
 
 ## 🆕 New Features & Improvements
 
-### 🤖 Automated Versioning System
-- **GitHub Actions** workflow for automatic version bumps
-- **Semantic Versioning** (SemVer) based on conventional commits
-- **Auto-generated releases** with release notes
-- **Git tags** and **NPM scripts** for manual versioning
+### 🤖 Automated Versioning System (After PR Merge)
+- **Automatic version bumps** after merging pull requests
+- **Smart commit analysis** using conventional commit patterns
+- **Multiple workflow options** for different security configurations
+- **Branch protection compatible** with Personal Access Token support
+- **Fallback mechanisms** for different GitHub repository configurations
+- **Semantic Versioning** (SemVer) with auto-generated releases and git tags
+
+### 🔐 Branch Protection & Security
+- **Protected main branch** ensures all changes go through PR review
+- **AUTO_VERSION_TOKEN** support for bypassing protection rules
+- **Multiple authentication methods** (PAT, GitHub Token, API-based)
+- **Intelligent workflow selection** based on available permissions
 
 ### 📏 Code Quality Standards
 - **ESLint configuration** with 40+ professional rules
-- **No magic numbers** - All HTTP status codes centralized
+- **No magic numbers** - All HTTP status codes centralized in `constants/httpStatus.js`
 - **Consistent code style** with Prettier integration
 - **Best practices** enforcement (ES6+, security, complexity)
 
-### 🧪 Enhanced Testing
+### 🧪 Enhanced Testing & Validation
 - **32 comprehensive tests** with 100% pass rate
-- **Automated test runner** in GitHub Actions
-- **Coverage reporting** available
-- **Pre-release validation** ensures quality
+- **Automated test runner** in GitHub Actions workflow
+- **Pre-commit validation** ensures code quality
+- **System diagnostics** with `diagnose-and-fix.js` script
 
 ## 🚀 Getting Started
 
@@ -138,15 +168,42 @@ npm run lint           # Check code quality with ESLint
 npm run lint:fix       # Auto-fix ESLint issues
 ```
 
-### 🔄 Versioning (Automated)
-The project uses **conventional commits** for automatic versioning:
+### 🔄 Versioning (Automated - After PR Merge)
+The project uses **automatic versioning** that triggers after merging pull requests:
 
 ```bash
-# These commit messages will trigger auto-versioning:
-git commit -m "feat: add new user management API"     # → 1.0.0 → 1.1.0 (minor)
-git commit -m "fix: resolve authentication bug"      # → 1.0.0 → 1.0.1 (patch)
-git commit -m "BREAKING CHANGE: refactor API"        # → 1.0.0 → 2.0.0 (major)
+# When you merge a PR with these commits, version updates automatically:
+git commit -m "feat: add new user management API"     # → 1.0.1 → 1.1.0 (minor)
+git commit -m "fix: resolve authentication bug"      # → 1.0.1 → 1.0.2 (patch)
+git commit -m "feat!: breaking API changes"          # → 1.0.1 → 2.0.0 (major)
+
+# The workflow automatically:
+# 1. Analyzes your PR commits
+# 2. Determines version bump type (major/minor/patch)
+# 3. Updates package.json and package-lock.json
+# 4. Creates commit, git tag, and GitHub release
 ```
+
+### 🔧 Auto-Versioning Setup
+For repositories with branch protection (recommended):
+
+1. **Create Personal Access Token**:
+   - GitHub → Settings → Developer settings → Personal access tokens
+   - Permissions: `repo` + `workflow`
+
+2. **Add Repository Secret**:
+   - Repository → Settings → Secrets → `AUTO_VERSION_TOKEN`
+
+3. **Test the system**:
+   ```bash
+   # Validate your setup
+   node validate-auto-version.js
+   
+   # Diagnose any issues
+   node diagnose-and-fix.js
+   ```
+
+See [`docs/BRANCH_PROTECTION_SOLUTION.md`](docs/BRANCH_PROTECTION_SOLUTION.md) for detailed setup guide.
 
 ### 🔧 Manual Versioning
 ```bash
@@ -477,6 +534,61 @@ npm run test:coverage      # Generate coverage report
 - Configuration: 2 tests
 - Integration: 3 tests
 
+## 🔄 Automatic Versioning System
+
+This project features an **intelligent auto-versioning system** that automatically updates `package.json` and `package-lock.json` versions after each Pull Request merge.
+
+### 🚀 How It Works
+
+The system analyzes commit messages in merged PRs using **conventional commit patterns** to determine the appropriate version bump:
+
+- **🔧 fix:** → Patch version bump (1.0.0 → 1.0.1)
+- **✨ feat:** → Minor version bump (1.0.0 → 1.1.0)  
+- **💥 BREAKING CHANGE:** → Major version bump (1.0.0 → 2.0.0)
+
+### 📋 Workflow Features
+
+- ✅ **Branch Protection Compatible** - Works with protected main branches
+- ✅ **Multi-Authentication Support** - Personal Access Token integration
+- ✅ **Intelligent Analysis** - Scans all commits in merged PRs
+- ✅ **Automatic Commits** - Updates version files and commits changes
+- ✅ **Fallback Mechanisms** - Multiple workflow variants for different setups
+
+### ⚙️ Setup Requirements
+
+For repositories with branch protection, configure the `AUTO_VERSION_TOKEN` secret:
+
+1. **Create Personal Access Token** in GitHub Settings
+2. **Add Repository Secret** named `AUTO_VERSION_TOKEN`
+3. **Required Permissions**: `Contents: Write`, `Metadata: Read`, `Pull requests: Write`
+
+### 📁 Workflow Files
+
+```
+.github/workflows/
+├── auto-version-after-merge.yml    # Primary workflow (branch protection compatible)
+├── auto-version-hybrid.yml         # Fallback for mixed configurations
+└── auto-version-api.yml            # API-based approach for complex setups
+```
+
+### 🔍 Validation & Diagnostics
+
+Test your setup with the validation script:
+
+```bash
+node validate-auto-version.js
+```
+
+**Example Output:**
+```
+✅ Auto-versioning system validation
+📂 Workflow files: 3 found
+🔧 Configuration: Ready for protected branches
+📊 System status: Fully operational
+```
+
+For detailed setup and troubleshooting, see `/docs/branch-protection-solutions.md`.
+
 ## Contributing
 
 1. **Fork** the repository
@@ -502,6 +614,10 @@ npm run test:coverage      # Generate coverage report
 **Last Updated**: January 2025
 
 ### Recent Updates
+- ✅ **Automated Versioning System** - Intelligent version management with PR merge triggers
+- ✅ **Branch Protection Compatibility** - Works with protected main branches using PAT authentication
+- ✅ **Multiple Workflow Variants** - 3 different auto-versioning approaches for various setups
+- ✅ **Comprehensive Documentation** - Complete setup guides and troubleshooting resources
 - ✅ Comprehensive test suite implementation
 - ✅ Jira configuration management
 - ✅ Authentication system with Firebase
