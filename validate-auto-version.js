@@ -15,12 +15,22 @@ console.log('======================================\n');
 // 1. Vérifier les prérequis
 console.log('🔍 Checking prerequisites...');
 
-const workflowFile = '.github/workflows/auto-version-after-merge.yml';
-if (fs.existsSync(workflowFile)) {
-  console.log('  ✅ Workflow file exists');
-} else {
-  console.log('  ❌ Workflow file missing');
-  throw new Error('Workflow file missing');
+const workflowFiles = [
+  '.github/workflows/auto-version-after-merge.yml',
+  '.github/workflows/auto-version-api.yml',
+];
+
+let workflowExists = false;
+workflowFiles.forEach(workflowFile => {
+  if (fs.existsSync(workflowFile)) {
+    console.log(`  ✅ ${workflowFile} exists`);
+    workflowExists = true;
+  }
+});
+
+if (!workflowExists) {
+  console.log('  ❌ No auto-versioning workflow found');
+  throw new Error('No workflow file found');
 }
 
 // 2. Vérifier package.json
@@ -78,7 +88,15 @@ mergeMessages.forEach(message => {
 // 5. Vérifier la configuration du workflow
 console.log('\n⚙️ Checking workflow configuration...');
 
-const workflowContent = fs.readFileSync(workflowFile, 'utf8');
+// Utiliser le premier workflow trouvé
+const mainWorkflowFile = workflowFiles.find(file => fs.existsSync(file));
+if (!mainWorkflowFile) {
+  console.log('  ❌ No workflow file found for validation');
+  throw new Error('No workflow file found for validation');
+}
+
+console.log(`  📁 Checking: ${mainWorkflowFile}`);
+const workflowContent = fs.readFileSync(mainWorkflowFile, 'utf8');
 
 const checks = [
   { name: 'Trigger on push to main', pattern: /on:\s*push:\s*branches:\s*\[\s*main\s*\]/ },
@@ -86,8 +104,9 @@ const checks = [
   { name: 'Skip version condition', pattern: /\[skip version\]/ },
   { name: 'Node.js setup', pattern: /node-version:\s*'22\.11\.0'/ },
   { name: 'npm version command', pattern: /npm version/ },
-  { name: 'Git tag creation', pattern: /git tag/ },
-  { name: 'GitHub release', pattern: /actions\/create-release/ },
+  { name: 'AUTO_VERSION_TOKEN support', pattern: /AUTO_VERSION_TOKEN/ },
+  { name: 'Git tag creation', pattern: /git tag|\/git\/tags/ },
+  { name: 'GitHub release', pattern: /actions\/create-release|create-release/ },
 ];
 
 checks.forEach(check => {
@@ -97,12 +116,19 @@ checks.forEach(check => {
 });
 
 console.log('\n🎯 Manual testing instructions:');
-console.log('  1. Create a feature branch: git checkout -b test-auto-version');
-console.log('  2. Make some changes and commit with conventional format');
-console.log('  3. Push branch: git push origin test-auto-version');
-console.log('  4. Create PR on GitHub');
-console.log('  5. Merge the PR');
-console.log('  6. Check if workflow runs and updates version automatically');
+console.log('  1. Configure AUTO_VERSION_TOKEN secret (see docs/BRANCH_PROTECTION_SOLUTION.md)');
+console.log('  2. Create a feature branch: git checkout -b test-auto-version');
+console.log('  3. Make some changes and commit with conventional format');
+console.log('  4. Push branch: git push origin test-auto-version');
+console.log('  5. Create PR on GitHub');
+console.log('  6. Merge the PR');
+console.log('  7. Check if workflow runs and updates version automatically');
+
+console.log('\n🔧 Branch Protection Fix:');
+console.log('  If you see "Repository rule violations" error:');
+console.log('  • Create Personal Access Token with repo permissions');
+console.log('  • Add as repository secret: AUTO_VERSION_TOKEN');
+console.log('  • See: docs/BRANCH_PROTECTION_SOLUTION.md for detailed instructions');
 
 console.log('\n📋 Expected behavior after PR merge:');
 console.log('  ✅ Workflow triggers on merge commit');
