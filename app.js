@@ -12,6 +12,7 @@ const jiraConfigRoutes = require('./routes/jira_config.routes');
 const ticketRoutes = require('./routes/ticket');
 const userRoutes = require('./routes/user');
 const projectRoutes = require('./routes/project.routes');
+const scoreRoutes = require('./routes/score.routes');
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/jira_client', jiraClientRoutes);
 app.use('/jira_config', jiraConfigRoutes);
 app.use('/ticket', ticketRoutes);
 app.use('/project', projectRoutes);
+app.use('/scores', scoreRoutes);
 
 // HTTP status codes
 const HTTP_STATUS_NOT_FOUND = 404;
