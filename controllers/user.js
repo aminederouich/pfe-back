@@ -69,7 +69,9 @@ exports.getTicketStatsByUser = async(req, res) => {
       const createdAt = data.createdAt ? new Date(data.createdAt.seconds * 1000) : null;
 
       score += data.score || 0;
-      if (createdAt && createdAt > oneWeekAgo) {weekly++;}
+      if (createdAt && createdAt > oneWeekAgo) {
+        weekly++;
+      }
     });
 
     return res.status(200).json({
