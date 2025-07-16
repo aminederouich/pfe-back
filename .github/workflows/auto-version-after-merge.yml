@@ -67,24 +67,25 @@ jobs:
       id: update-version
       run: |
         BUMP_TYPE="${{ steps.analyze-commits.outputs.bump_type }}"
-        
-        # Obtenir la version actuelle
-        CURRENT_VERSION=$(node -p "require('./package.json').version")
-        
-        # Bumper (forcé)
-        NEW_VERSION=$(npm version $BUMP_TYPE --no-git-tag-version)
-        
-        # Forcer un changement visuel dans README (badge)
-        sed -i "s/version-[0-9]\+\.[0-9]\+\.[0-9]\+-blue/version-$NEW_VERSION-blue/g" README.md || true
 
-        # Si toujours rien n’a changé, forcer un diff pour débloquer GitHub
+        echo "🔍 Bump type = $BUMP_TYPE"
+
+        # Bumper la version (cela donne ex: 1.0.6)
+        NEW_VERSION=$(npm version $BUMP_TYPE --no-git-tag-version)
+
+        # Nettoyage de la lettre "v" pour usage interne
+        NEW_VERSION_CLEAN="${NEW_VERSION#v}"
+
+        # Mise à jour du badge version dans README (même si déjà présent)
+        sed -i "s/version-[0-9]\+\.[0-9]\+\.[0-9]\+-blue/version-$NEW_VERSION_CLEAN-blue/g" README.md || true
+
+        # Forcer un changement si aucun fichier modifié
         if git diff --quiet; then
           echo "" >> README.md
-          echo "🟡 Aucun vrai diff détecté, ajout ligne vide dans README pour forcer commit"
+          echo "🟡 Aucun vrai diff détecté, ligne vide ajoutée à README"
         fi
 
-        echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-
+        echo "version=$NEW_VERSION_CLEAN" >> $GITHUB_OUTPUT
 
     - name: 🚀 Create release branch and push
       env:
