@@ -105,14 +105,28 @@ jobs:
         token: ${{ secrets.PAT_TOKEN }}
         commit-message: "chore(release): bump version to ${{ steps.update-version.outputs.version }} [skip ci]"
         branch: release/v${{ steps.update-version.outputs.version }}
-        title: "🔁 Release v${{ steps.update-version.outputs.version }}"
+        title: "${{ steps.analyze-commits.outputs.emoji }} Release v${{ steps.update-version.outputs.version }}"
         body: |
           ## 📦 New Release: v${{ steps.update-version.outputs.version }}
 
-          - **Type**: `${{ steps.analyze-commits.outputs.bump_type }}`
+          - **Type**: `${{ steps.analyze-commits.outputs.bump_type }}` ${{ steps.analyze-commits.outputs.emoji }}
           - Auto-generated after merging a PR into `main`.
 
+          ### Changes
+          - Version bumped from previous to `v${{ steps.update-version.outputs.version }}`
+          - Updated `package.json` and `package-lock.json`
+          - Updated version badge in README.md
+
           ---
-          ✅ Please review and merge.
+          ✅ Please review and merge to complete the release process.
         base: main
         delete-branch: true
+        reviewers: |
+          aminederouich
+          mohamedaminederouich
+        assignees: |
+          aminederouich
+        labels: |
+          release
+          ${{ steps.analyze-commits.outputs.bump_type }}
+          auto-generated
