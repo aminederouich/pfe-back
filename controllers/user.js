@@ -41,13 +41,13 @@ exports.getUserByUid = async(req, res) => {
     const user = await User.findByUid(uid);
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(HTTP_STATUS.NOT_FOUND).json({ message: 'User not found' });
     }
 
-    return res.status(200).json(user.toPublicFormat());
+    return res.status(HTTP_STATUS.OK).json(user.toPublicFormat());
   } catch (error) {
     console.error('Error fetching user:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
   }
 };
 
@@ -74,13 +74,13 @@ exports.getTicketStatsByUser = async(req, res) => {
       }
     });
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       total: querySnapshot.size,
       weekly,
       score,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Erreur lors du calcul des statistiques' });
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Erreur lors du calcul des statistiques' });
   }
 };
