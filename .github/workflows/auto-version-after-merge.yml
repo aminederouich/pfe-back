@@ -67,12 +67,22 @@ jobs:
       id: update-version
       run: |
         BUMP_TYPE="${{ steps.analyze-commits.outputs.bump_type }}"
-        npm version $BUMP_TYPE --no-git-tag-version
-        NEW_VERSION=$(node -p "require('./package.json').version")
-        
-        # Update version in README.md badge
-        sed -i "s/version-[0-9]\+\.[0-9]\+\.[0-9]\+-blue/version-$NEW_VERSION-blue/g" README.md
-        
+
+        # Obtenir la version actuelle
+        CURRENT_VERSION=$(node -p "require('./package.json').version")
+
+        # Bumper la version (même si identique, pour forcer un changement)
+        NEW_VERSION=$(npm version $BUMP_TYPE --no-git-tag-version)
+
+        # Forcer la mise à jour du badge README (même si identique)
+        sed -i "s/version-[0-9]\+\.[0-9]\+\.[0-9]\+-blue/version-$NEW_VERSION-blue/g" README.md || true
+
+        # Forcer un changement si rien n'a changé (ajouter un espace invisible dans README)
+        if git diff --quiet; then
+          echo "" >> README.md
+          echo "🟡 Aucun diff détecté, ajout d'un espace dans README pour forcer un commit."
+        fi
+
         echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
     - name: 🚀 Create release branch and push
