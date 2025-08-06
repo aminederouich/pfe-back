@@ -13,6 +13,7 @@ class User {
     this.phoneNumber = userData.phoneNumber || null;
     this.createdAt = userData.createdAt || null;
     this.updatedAt = userData.updatedAt || null;
+    this.scoreConfigId = userData.scoreConfigId || null;
   }
 
   /**
@@ -34,6 +35,7 @@ class User {
         phoneNumber: userData.phoneNumber || null,
         createdAt: new Date(),
         updatedAt: new Date(),
+        scoreConfigId: userData.scoreConfigId || null,
       };
 
       await setDoc(userRef, userDoc);
@@ -103,6 +105,7 @@ class User {
       phoneNumber: this.phoneNumber,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
+      scoreConfigId: this.scoreConfigId,
     };
   }
 
