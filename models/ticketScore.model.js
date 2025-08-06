@@ -1,4 +1,4 @@
-const { collection, addDoc, getDocs, query, where, doc, updateDoc, getDoc } = require('firebase/firestore');
+const { collection, addDoc, getDocs, query, where, doc, updateDoc } = require('firebase/firestore');
 const { db } = require('../config/firebase');
 
 const collectionName = 'ticketScores';
