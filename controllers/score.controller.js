@@ -50,7 +50,6 @@ const ScoreController = {
     try {
       const { scoreId } = req.params;
       const score = await ScoreModel.getScoreById(scoreId);
-      
       if (!score) {
         return res.status(HTTP_STATUS.NOT_FOUND).json({
           success: false,
