@@ -44,6 +44,35 @@ const ScoreController = {
   },
 
   /**
+   * Récupérer un score (règle) par son ID
+   */
+  async getScoreById(req, res) {
+    try {
+      const { scoreId } = req.params;
+      const score = await ScoreModel.getScoreById(scoreId);
+      
+      if (!score) {
+        return res.status(HTTP_STATUS.NOT_FOUND).json({
+          success: false,
+          message: `Score avec l'ID ${scoreId} introuvable`,
+        });
+      }
+
+      res.status(HTTP_STATUS.OK).json({
+        success: true,
+        data: score,
+        message: 'Score récupéré avec succès',
+      });
+    } catch (error) {
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: error.message,
+        message: 'Erreur lors de la récupération du score',
+      });
+    }
+  },
+
+  /**
    * Calculer le score d'un ticket
    */
   async calculateTicketScore(req, res) {
