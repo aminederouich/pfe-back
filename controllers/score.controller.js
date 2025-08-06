@@ -1,52 +1,12 @@
 const HTTP_STATUS = require('../constants/httpStatus');
+const authMiddleware = require('../middleware/auth');
 const ScoreModel = require('../models/score.model');
 const ScoreService = require('../services/score.service');
 
-const ScoreController = {
-  /**
-   * Créer un nouveau score (règle)
-   */
-  async createScore(req, res) {
-    try {
-      const score = await ScoreModel.addScore(req.body);
-      res.status(HTTP_STATUS.CREATED).json({
-        success: true,
-        data: score,
-        message: 'Score créé avec succès',
-      });
-    } catch (error) {
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        error: error.message,
-        message: 'Erreur lors de la création du score',
-      });
-    }
-  },
 
-  /**
-   * Récupérer tous les scores (règles)
-   */
-  async getAllScores(req, res) {
-    try {
-      const scores = await ScoreModel.getScores();
-      res.status(HTTP_STATUS.OK).json({
-        success: true,
-        data: scores,
-        message: 'Scores récupérés avec succès',
-      });
-    } catch (error) {
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        error: error.message,
-        message: 'Erreur lors de la récupération des scores',
-      });
-    }
-  },
-
-  /**
-   * Récupérer un score (règle) par son ID
-   */
-  async getScoreById(req, res) {
+exports.getScoreById = [
+  authMiddleware,
+  async(req, res) => {
     try {
       const { scoreId } = req.params;
       const score = await ScoreModel.getScoreById(scoreId);
@@ -70,11 +30,60 @@ const ScoreController = {
       });
     }
   },
+];
 
-  /**
+/**
+   * Créer un nouveau score (règle)
+   */
+exports.createScore = [
+  authMiddleware,
+  async(req, res) => {
+    try {
+      const score = await ScoreModel.addScore(req.body);
+      res.status(HTTP_STATUS.CREATED).json({
+        success: true,
+        data: score,
+        message: 'Score créé avec succès',
+      });
+    } catch (error) {
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: error.message,
+        message: 'Erreur lors de la création du score',
+      });
+    }
+  },
+];
+
+/**
+ * Récupérer tous les scores (règles)
+ */
+exports.getAllScores = [
+  authMiddleware,
+  async(req, res) => {
+    try {
+      const scores = await ScoreModel.getScores();
+      res.status(HTTP_STATUS.OK).json({
+        success: true,
+        data: scores,
+        message: 'Scores récupérés avec succès',
+      });
+    } catch (error) {
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: error.message,
+        message: 'Erreur lors de la récupération des scores',
+      });
+    }
+  },
+];
+
+/**
    * Calculer le score d'un ticket
    */
-  async calculateTicketScore(req, res) {
+exports.calculateTicketScore = [
+  authMiddleware,
+  async(req, res) => {
     try {
       const { ticketId, ruleId } = req.body;
       const result = await ScoreService.calculateTicketScore(ticketId, ruleId);
@@ -87,11 +96,14 @@ const ScoreController = {
       });
     }
   },
+];
 
-  /**
+/**
    * Calculer les scores de plusieurs tickets
    */
-  async calculateMultipleTicketScores(req, res) {
+exports.calculateMultipleTicketScores = [
+  authMiddleware,
+  async(req, res) => {
     try {
       const { ticketIds, ruleId } = req.body;
 
@@ -110,11 +122,14 @@ const ScoreController = {
       });
     }
   },
+];
 
-  /**
+/**
    * Récupérer tous les scores de tickets
    */
-  async getAllTicketScores(req, res) {
+exports.getAllTicketScores = [
+  authMiddleware,
+  async(req, res) => {
     try {
       const scores = await ScoreService.getAllTicketScores();
       res.status(HTTP_STATUS.OK).json({
@@ -130,11 +145,14 @@ const ScoreController = {
       });
     }
   },
+];
 
-  /**
+/**
    * Récupérer les scores d'un ticket spécifique
    */
-  async getScoresByTicketId(req, res) {
+exports.getScoresByTicketId = [
+  authMiddleware,
+  async(req, res) => {
     try {
       const { ticketId } = req.params;
 
@@ -153,6 +171,4 @@ const ScoreController = {
       });
     }
   },
-};
-
-module.exports = ScoreController;
+];
