@@ -5,6 +5,7 @@ const ScoreController = require('../controllers/score.controller');
 // Routes pour les règles de score
 router.post('/add', ScoreController.createScore);
 router.get('/getAll', ScoreController.getAllScores);
+router.get('/getScoreById/:scoreId', ScoreController.getScoreById);
 
 // Routes pour le calcul des scores
 router.post('/calculate', ScoreController.calculateTicketScore);
