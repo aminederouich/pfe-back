@@ -12,7 +12,7 @@ const HTTP_STATUS = require('../constants/httpStatus');
 const authMiddleware = require('../middleware/auth');
 const User = require('../models/user.model');
 const { sendInvitationEmail } = require('../utils/email.util');
-const bcrypt = require('bcrypt');
+const AuthService = require('../services/auth.service');
 
 // Obtenir tous les utilisateurs
 exports.getAllUsers = [
@@ -126,6 +126,18 @@ exports.inviteNewEmployee = async(req, res) => {
 
     // 3. Ajout de l'employé
     console.log('Ajout de l\'employé dans Firestore...');
+    const result = await AuthService.register({
+      email,
+      password: 'takeitpass',
+      firstName,
+      lastName,
+    });
+
+    // return res.status(HTTP_STATUS.CREATED).json({
+    //   error: false,
+    //   message: result.message,
+    //   user: result.user,
+    // });
     const newUserRef = await addDoc(usersRef, {
       firstName,
       lastName,
@@ -162,7 +174,7 @@ exports.setPassword = async(req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Vérifie si l'utilisateur existe déjà
+    // Vérifie si l'utilisateur existe déjà dans Firestore
     const usersRef = collection(db, 'users');
     const userQuery = query(usersRef, where('email', '==', email));
     const userSnapshot = await getDocs(userQuery);
@@ -171,18 +183,76 @@ exports.setPassword = async(req, res) => {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Récupérer les informations de l'utilisateur
+    const userData = userSnapshot.docs[0].data();
 
-    // Mettre à jour l'utilisateur avec le mot de passe
-    const userId = userSnapshot.docs[0].id;
-    const userDocRef = doc(db, 'users', userId);
-    await updateDoc(userDocRef, {
-      password: hashedPassword,
-      updatedAt: new Date(),
-    });
+    // Si l'utilisateur a déjà un UID (compte Firebase créé), mettre à jour le mot de passe
+    if (userData.uid) {
+      try {
+        // Se connecter temporairement pour pouvoir changer le mot de passe
+        // Note: Cette approche nécessite que l'utilisateur ait déjà un mot de passe temporaire
+        // ou que nous utilisions une autre méthode d'authentification
 
-    res.status(200).json({ message: 'Mot de passe défini avec succès.' });
+        // Pour l'instant, on met à jour seulement dans Firestore
+        // et on indique que l'utilisateur doit se connecter pour définir son mot de passe
+        const userId = userSnapshot.docs[0].id;
+        const userDocRef = doc(db, 'users', userId);
+        await updateDoc(userDocRef, {
+          password, // Stocker le mot de passe en clair temporairement
+          updatedAt: new Date(),
+        });
+
+        return res.status(200).json({
+          message: 'Mot de passe défini avec succès dans la base de données.',
+          note: 'L\'utilisateur devra se connecter pour finaliser la configuration de son compte Firebase.',
+        });
+      } catch (firebaseError) {
+        console.error('Erreur Firebase Auth:', firebaseError);
+        return res.status(500).json({
+          message: 'Erreur lors de la mise à jour du mot de passe Firebase',
+          error: firebaseError.message,
+        });
+      }
+    } else {
+      // Si l'utilisateur n'a pas encore de compte Firebase, créer le compte
+      try {
+        // Créer le compte Firebase avec l'email et le mot de passe
+        const userCredential = await AuthService.register({
+          email,
+          password,
+          firstName: userData.firstName || '',
+          lastName: userData.lastName || '',
+        });
+
+        // Mettre à jour l'utilisateur dans Firestore avec l'UID Firebase
+        const userId = userSnapshot.docs[0].id;
+        const userDocRef = doc(db, 'users', userId);
+        await updateDoc(userDocRef, {
+          uid: userCredential.user.uid,
+          password: null, // Ne pas stocker le mot de passe en clair
+          updatedAt: new Date(),
+        });
+
+        return res.status(200).json({
+          message: 'Compte Firebase créé et mot de passe défini avec succès.',
+          user: {
+            uid: userCredential.user.uid,
+            email: userCredential.user.email,
+          },
+        });
+      } catch (firebaseError) {
+        console.error('Erreur création compte Firebase:', firebaseError);
+        return res.status(500).json({
+          message: 'Erreur lors de la création du compte Firebase',
+          error: firebaseError.message,
+        });
+      }
+    }
   } catch (err) {
-    res.status(500).json({ message: 'Erreur lors de la définition du mot de passe', error: err.message });
+    console.error('Erreur setPassword:', err);
+    res.status(500).json({
+      message: 'Erreur lors de la définition du mot de passe',
+      error: err.message,
+    });
   }
 };
