@@ -126,7 +126,7 @@ exports.inviteNewEmployee = async(req, res) => {
 
     // 3. Ajout de l'employé
     console.log('Ajout de l\'employé dans Firestore...');
-    const result = await AuthService.register({
+    await AuthService.register({
       email,
       password: 'takeitpass',
       firstName,
