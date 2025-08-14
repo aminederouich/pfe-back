@@ -26,7 +26,7 @@ const sendInvitationEmail = async(toEmail, firstName) => {
         <h2>Bonjour ${firstName},</h2>
         <p>Vous êtes invité(e) à rejoindre la plateforme <strong>TakeIt</strong>.</p>
         <p>Cliquez ci-dessous pour définir votre mot de passe :</p>
-        <a href="http://localhost:3000/reset-password" style="padding:10px 15px; background-color:#4CAF50; color:white; text-decoration:none; border-radius:5px;">
+        <a href="http://localhost:3000/reset-password?email=${toEmail}" style="padding:10px 15px; background-color:#4CAF50; color:white; text-decoration:none; border-radius:5px;">
           Définir mon mot de passe
         </a>
         <p>Merci,<br>L'équipe TakeIt</p>
