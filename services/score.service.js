@@ -98,6 +98,14 @@ class ScoreService {
     const typeScore = this.calculateTicketTypeScore(ticket, rule);
     totalScore += typeScore;
 
+    // Score basé sur la deadline
+    const deadlineScore = this.calculateDeadlineScore(ticket, rule);
+    totalScore += deadlineScore;
+
+    // Score basé sur la résolution
+    const resolutionScore = this.calculateResolutionScore(ticket, rule);
+    totalScore += resolutionScore;
+
     // Retourner le score total arrondi (sans limitation)
     return Math.round(totalScore);
   }
@@ -171,6 +179,64 @@ class ScoreService {
       return 0;
     }
 
+    return 0;
+  }
+
+  // Moved deadline helpers to score.deadline.util.js to keep this file concise
+  /**
+   * Calcule le score basé sur la deadline (avant, à temps, en retard)
+   * @param {Object} ticket
+   * @param {Object} rule
+   * @returns {number}
+   */
+  static calculateDeadlineScore(ticket, rule) {
+    const {
+      isResolutionDone,
+      getDeadlineDates,
+      computeDeadlineRuleScore,
+    } = require('./score.deadline.util');
+
+    if (!isResolutionDone(ticket)) {
+      return 0;
+    }
+
+    const dates = getDeadlineDates(ticket);
+    if (!dates) {
+      return 0;
+    }
+
+    if (!rule.deadline || typeof rule.deadline !== 'object') {
+      return 0;
+    }
+
+    const { deadlineDate, statusChangedDate } = dates;
+    return computeDeadlineRuleScore(rule.deadline, deadlineDate, statusChangedDate);
+  }
+
+  /**
+   * Calcule le score basé sur la résolution du ticket
+   * @param {Object} ticket
+   * @param {Object} rule
+   * @returns {number}
+   */
+  static calculateResolutionScore(ticket, rule) {
+    // Exemples de champs : ticket.resolution, ticket.fields?.resolution?.name
+    const resolution = ticket.resolution || ticket.fields?.resolution?.name;
+    if (!resolution) {
+      return 0;
+    }
+
+    if (rule.resolution && typeof rule.resolution === 'object') {
+      const resolutionKey = resolution.toLowerCase().replace(/\s+/g, '_');
+      if (rule.resolution[resolutionKey]) {
+        const resConfig = rule.resolution[resolutionKey];
+        if (!resConfig.checked) {
+          return 0;
+        }
+        return parseInt(resConfig.score, 10) || 0;
+      }
+      return 0;
+    }
     return 0;
   }
 
