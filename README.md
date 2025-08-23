@@ -3,7 +3,7 @@
 A modern Node.js/Express backend API for project management and Jira integration, built as part of a PFE (Projet de Fin d'Études) application with **automated versioning** and **professional development practices**.
 
 
-[![Version](https://img.shields.io/badge/version-1.5.0-blue.svg)](https://github.com/aminederouich/pfe-back)
+[![Version](https://img.shields.io/badge/version-1.6.0-blue.svg)](https://github.com/aminederouich/pfe-back)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D22.11.0-brightgreen.svg)](https://nodejs.org/)
 [![Tests](https://img.shields.io/badge/tests-32%20passing-brightgreen.svg)](https://github.com/aminederouich/pfe-back/actions)
 [![ESLint](https://img.shields.io/badge/ESLint-configured-brightgreen.svg)](https://eslint.org/)
@@ -450,7 +450,7 @@ This project is part of a PFE (Projet de Fin d'Études) and is intended for educ
 📚 **Well Documented** - Complete API and setup guides
 
 
-**Current Version:** ![Version](https://img.shields.io/badge/version-1.5.0-blue.svg)
+**Current Version:** ![Version](https://img.shields.io/badge/version-1.6.0-blue.svg)
 
 ---
 
