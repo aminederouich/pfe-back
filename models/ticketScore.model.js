@@ -64,6 +64,13 @@ const TicketScoreModel = {
     // Créer un nouveau score
     return this.addTicketScore(data);
   },
+
+  // AJOUTE CETTE MÉTHODE :
+  async getTicketScoresByOwnerId(ownerId) {
+    const q = query(collection(db, collectionName), where('ownerId', '==', ownerId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  },
 };
 
 module.exports = TicketScoreModel;
