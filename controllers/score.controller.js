@@ -172,3 +172,23 @@ exports.getScoresByTicketId = [
     }
   },
 ];
+/**
+ * Récupérer le score global d'un employé
+ */
+exports.getEmployeeGlobalScore = [
+  authMiddleware,
+  async(req, res) => {
+    try {
+      const { uid } = req.params;
+      const globalScore = await ScoreService.getEmployeeGlobalScore(uid);
+
+      res.status(HTTP_STATUS.OK).json(globalScore);
+    } catch (error) {
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: error.message,
+        message: 'Erreur lors de la récupération du score global de l\'employé',
+      });
+    }
+  },
+];

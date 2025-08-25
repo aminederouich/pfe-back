@@ -6,7 +6,7 @@ const ScoreController = require('../controllers/score.controller');
 router.post('/add', ScoreController.createScore);
 router.get('/getAll', ScoreController.getAllScores);
 router.get('/getScoreById/:scoreId', ScoreController.getScoreById);
-
+router.get('/users/score/:uid', ScoreController.getEmployeeGlobalScore);
 // Routes pour le calcul des scores
 router.post('/calculate', ScoreController.calculateTicketScore);
 router.post('/calculate-multiple', ScoreController.calculateMultipleTicketScores);
