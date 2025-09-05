@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { getAllTicket, addNewTicket } = require('../controllers/ticket');
+const ticketController = require('../controllers/ticket.controller');
 
-router.get('/getAllTicket', getAllTicket);
+router.get('/getAllTicket', ticketController.getAllTicket);
 
-router.post('/addNewTicket', addNewTicket);
+router.post('/addNewTicket', ticketController.addNewTicket);
+
+router.post('/updateTicket', ticketController.updateTicket);
 
 module.exports = router;
