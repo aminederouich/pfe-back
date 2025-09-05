@@ -1,3 +1,4 @@
+const createJiraClient = require('../middleware/jiraClient');
 const TicketModel = require('../models/ticket.model');
 
 class ticketService {
@@ -36,6 +37,34 @@ class ticketService {
     } else {
       await TicketModel.addNewTicket(ticket, configId);
     }
+  }
+
+  async updateIssueJiraClient(ticket, config) {
+    const jira = await createJiraClient(config);
+    try {
+      const [fieldKey] = Object.keys(ticket.fields);
+      if (fieldKey === 'summary') {
+        await jira.updateIssue(ticket.key, { fields: ticket.fields }, {});
+      } else if (fieldKey === 'status') {
+        const transitions = await jira.listTransitions(ticket.key);
+        const transition = transitions.transitions.find(t => t.to.name === ticket.fields.status.name);
+        if (transition) {
+          await jira.transitionIssue(ticket.key, { transition: { id: transition.id } });
+        }
+      }
+    } catch (jiraError) {
+      return {
+        success: false,
+        message: 'Error updating ticket in Jira',
+        error: jiraError.message,
+      };
+    }
+  }
+
+  async updateTicketInBase(existingTicket, existingData, ticket) {
+    const updatedFields = { ...existingData.fields, ...ticket.fields, updated: new Date() };
+    TicketModel.updateOrSyncTicketInBase(existingTicket, ticket, existingData, updatedFields);
+
   }
 }
 
