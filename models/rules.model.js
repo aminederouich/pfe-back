@@ -22,7 +22,7 @@ class Rule {
       OnDeadline: { checked: false, value: 0 },
     };
     this.resolution = ruleData.resolution || {
-      Done: { checked: false, value: 0 },
+      Terminé: { checked: false, value: 0 },
     };
     this.createdAt = ruleData.createdAt || null;
     this.updatedAt = ruleData.updatedAt || null;
@@ -97,7 +97,7 @@ class Rule {
         OnDeadline: { checked: false, value: 0 },
       },
       resolution: ruleData.resolution || {
-        Done: { checked: false, value: 0 },
+        Terminé: { checked: false, value: 0 },
       },
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -188,36 +188,6 @@ class Rule {
     }
   }
 
-  /**
-   * Convert rule instance to public format
-   * @returns {Object} - Public rule data
-   */
-  toPublicFormat() {
-    return {
-      id: this.id,
-      ownerId: this.ownerId,
-      priority: this.priority,
-      issuetype: this.issuetype,
-      deadline: this.deadline,
-      resolution: this.resolution,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-    };
-  }
-
-  /**
-   * Convert rule instance to calculation format (for score calculation)
-   * @returns {Object} - Rule data for calculations
-   */
-  toCalculationFormat() {
-    return {
-      id: this.id,
-      priority: this.priority,
-      issuetype: this.issuetype,
-      deadline: this.deadline,
-      resolution: this.resolution,
-    };
-  }
 }
 
 module.exports = Rule;
