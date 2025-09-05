@@ -63,6 +63,17 @@ class TicketModel {
     return existingTicket;
   }
 
+  static async findByIdAndConfigId(ticket) {
+    const ticketQuery = query(
+      collection(db, 'tickets'),
+      where('id', '==', ticket.id),
+      where('configId', '==', ticket.configId),
+    );
+    const querySnapshot = await getDocs(ticketQuery);
+    const [existingTicket] = querySnapshot.docs;
+    return existingTicket;
+  }
+
   static async updateOrSyncTicket(existingTicket, ticket, configId) {
     // Compare existing ticket with new ticket data
     const existingData = existingTicket.data();
@@ -89,6 +100,16 @@ class TicketModel {
         { merge: true },
       );
     }
+  }
+
+  static async updateOrSyncTicketInBase(existingTicket, ticket, existingData, updatedFields) {
+    return setDoc(existingTicket.ref, {
+      ...existingData,
+      ...ticket,
+      updatedAt: new Date(),
+      lastSync: new Date(),
+      fields: updatedFields,
+    });
   }
 
   static async addNewTicket(ticket, configId) {

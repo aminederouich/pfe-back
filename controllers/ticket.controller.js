@@ -121,52 +121,27 @@ exports.updateTicket = [
       }
 
       if (ticket.configId.length > 0) {
-        const configs = await jiraConfigService.getAllConfigs();
-        const config = configs.find(c => c.id === ticket.configId);
+        const config = await jiraConfigService.getConfigById(ticket.configId);
         if (!config) {
           return res.status(HTTP_STATUS.BAD_REQUEST).json({
             success: false,
             message: 'Jira configuration not found for this ticket',
           });
         }
-        const jira = await createJiraClient(config);
-        try {
-          const [fieldKey] = Object.keys(ticket.fields);
-          if (fieldKey === 'summary') {
-            await jira.updateIssue(ticket.key, { fields: ticket.fields }, {});
-          } else if (fieldKey === 'status') {
-            const transitions = await jira.listTransitions(ticket.key);
-            const transition = transitions.transitions.find(t => t.to.name === ticket.fields.status.name);
-            if (transition) {
-              await jira.transitionIssue(ticket.key, { transition: { id: transition.id } });
-            }
-          }
-        } catch (jiraError) {
+        const result = await ticketService.updateIssueJiraClient(ticket, config);
+        if (result !== undefined && !result.success) {
           return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: 'Error updating ticket in Jira',
-            error: jiraError.message,
+            error: result.error,
           });
         }
-        const ticketQuery = query(
-          collection(db, 'tickets'),
-          where('id', '==', ticket.id),
-          where('configId', '==', ticket.configId),
-        );
-        const querySnapshot = await getDocs(ticketQuery);
-        const [existingTicket] = querySnapshot.docs;
+        const existingTicket = await TicketModel.findByIdAndConfigId(ticket);
         const existingData = existingTicket.data();
         const hasChanges = JSON.stringify(existingData.fields) !== JSON.stringify(ticket.fields);
         if (hasChanges) {
           // Merge only the modified fields into the existing fields
-          const updatedFields = { ...existingData.fields, ...ticket.fields, updated: new Date() };
-          await setDoc(existingTicket.ref, {
-            ...existingData,
-            ...ticket,
-            updatedAt: new Date(),
-            lastSync: new Date(),
-            fields: updatedFields,
-          });
+          ticketService.updateTicketInBase(existingTicket, existingData, ticket);
         }
         res.status(HTTP_STATUS.OK).json({
           success: true,

@@ -32,8 +32,12 @@ class ScoreService {
     }
 
     // Calculer le score
-    const calculatedScore = this.applyRule(ticket, rule);
+    const resolution = ticket.fields?.resolution;
 
+    if (!resolution || resolution.name !== 'Terminé') {
+      throw new Error('Le ticket n\'est pas terminé (résolution différente de \'Terminé\')');
+    }
+    const calculatedScore = this.applyRule(ticket, rule);
     // Préparer les données à sauvegarder
     const scoreData = {
       ticketId,
