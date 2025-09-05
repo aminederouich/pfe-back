@@ -1,7 +1,12 @@
-const ScoreModel = require('../models/score.model');
+/* eslint-disable max-lines */
+const { findById } = require('../models/rules.model');
 const TicketModel = require('../models/ticket.model');
 const TicketScoreModel = require('../models/ticketScore.model');
-
+const {
+  isResolutionDone,
+  getDeadlineDates,
+  computeDeadlineRuleScore,
+} = require('./score.deadline.util');
 class ScoreService {
   /**
    * Calcule le score d'un ticket selon une règle
@@ -15,7 +20,7 @@ class ScoreService {
     }
 
     // Récupérer la règle
-    const rule = await ScoreModel.getScoreById(ruleId);
+    const rule = await findById(ruleId);
     if (!rule) {
       throw new Error(`Règle avec l'ID ${ruleId} introuvable`);
     }
@@ -118,26 +123,23 @@ class ScoreService {
    */
   static calculatePriorityScore(ticket, rule) {
     // Extraire la priorité du ticket
-    const ticketPriority = ticket.fields?.priority?.value;
+    const ticketPriority = ticket.fields?.priority?.name;
     const priorityValue = ticketPriority || ticket.priority;
-
     if (!priorityValue) {
       return 0;
     }
 
     // Vérifier la configuration de priorité dans la règle
     if (rule.priority && typeof rule.priority === 'object') {
-      const priorityKey = priorityValue.toLowerCase();
-      if (rule.priority[priorityKey]) {
-        const priorityConfig = rule.priority[priorityKey];
-
+      if (rule.priority[ticketPriority]) {
+        const priorityConfig = rule.priority[ticketPriority];
         // Si checked est false, retourner 0
         if (!priorityConfig.checked) {
           return 0;
         }
 
         // Si checked est true, retourner le score configuré
-        return parseInt(priorityConfig.score, 10) || 0;
+        return parseInt(priorityConfig.value, 10) || 0;
       }
 
       return 0;
@@ -155,25 +157,20 @@ class ScoreService {
   static calculateTicketTypeScore(ticket, rule) {
     // Extraire le type du ticket
     const ticketType = ticket.fields?.issuetype?.name || ticket.type || ticket.issueType;
-
     if (!ticketType) {
       return 0;
     }
 
     // Vérifier la configuration de type dans la règle
-    if (rule.type && typeof rule.type === 'object') {
-      const typeKey = ticketType.toLowerCase().replace(/\s+/g, '_');
-
-      if (rule.type[typeKey]) {
-        const typeConfig = rule.type[typeKey];
-
+    if (rule.issuetype && typeof rule.issuetype === 'object') {
+      if (rule.issuetype[ticketType]) {
+        const typeConfig = rule.issuetype[ticketType];
         // Si checked est false, retourner 0
         if (!typeConfig.checked) {
           return 0;
         }
-
         // Si checked est true, retourner le score configuré
-        return parseInt(typeConfig.score, 10) || 0;
+        return parseInt(typeConfig.value, 10) || 0;
       }
 
       return 0;
@@ -190,16 +187,9 @@ class ScoreService {
    * @returns {number}
    */
   static calculateDeadlineScore(ticket, rule) {
-    const {
-      isResolutionDone,
-      getDeadlineDates,
-      computeDeadlineRuleScore,
-    } = require('./score.deadline.util');
-
     if (!isResolutionDone(ticket)) {
       return 0;
     }
-
     const dates = getDeadlineDates(ticket);
     if (!dates) {
       return 0;
@@ -227,13 +217,12 @@ class ScoreService {
     }
 
     if (rule.resolution && typeof rule.resolution === 'object') {
-      const resolutionKey = resolution.toLowerCase().replace(/\s+/g, '_');
-      if (rule.resolution[resolutionKey]) {
-        const resConfig = rule.resolution[resolutionKey];
+      if (rule.resolution[resolution]) {
+        const resConfig = rule.resolution[resolution];
         if (!resConfig.checked) {
           return 0;
         }
-        return parseInt(resConfig.score, 10) || 0;
+        return parseInt(resConfig.value, 10) || 0;
       }
       return 0;
     }

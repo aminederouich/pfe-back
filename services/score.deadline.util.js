@@ -50,18 +50,17 @@ function getDeadlineDates(ticket) {
  * @returns {number}
  */
 function computeDeadlineRuleScore(deadlineRule, deadlineDate, statusChangedDate) {
-  const { rule1, rule2 } = deadlineRule || {};
-
+  const { OnDeadline, BeforeDeadline } = deadlineRule || {};
   if (statusChangedDate < deadlineDate) {
-    if (rule1 && rule1.checked) {
-      return parseInt(rule1.score, 10) || 0;
+    if (OnDeadline && OnDeadline.checked) {
+      return parseInt(OnDeadline.value, 10) || 0;
     }
     return 0;
   }
 
   if (statusChangedDate.toDateString() === deadlineDate.toDateString()) {
-    if (rule2 && rule2.checked) {
-      return parseInt(rule2.score, 10) || 0;
+    if (BeforeDeadline && BeforeDeadline.checked) {
+      return parseInt(BeforeDeadline.value, 10) || 0;
     }
     return 0;
   }
