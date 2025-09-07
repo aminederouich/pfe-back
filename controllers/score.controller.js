@@ -85,8 +85,8 @@ exports.calculateTicketScore = [
   authMiddleware,
   async(req, res) => {
     try {
-      const { ticketId, ruleId } = req.body;
-      const result = await ScoreService.calculateTicketScore(ticketId, ruleId);
+      const { ticket, ruleId } = req.body;
+      const result = await ScoreService.calculateTicketScore(ticket.id, ruleId, ticket.fields.assignee.accountId);
       res.status(HTTP_STATUS.CREATED).json(result);
     } catch (error) {
       res.status(HTTP_STATUS.BAD_REQUEST).json({

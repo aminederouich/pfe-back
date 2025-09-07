@@ -14,7 +14,7 @@ class ScoreService {
    * @param {string} ruleId - ID de la règle
    * @returns {Promise<Object>} Résultat du calcul
    */
-  static async calculateTicketScore(ticketId, ruleId) {
+  static async calculateTicketScore(ticketId, ruleId, assigneeId) {
     if (!ticketId || !ruleId) {
       throw new Error('Les paramètres ticketId et ruleId sont requis');
     }
@@ -42,6 +42,7 @@ class ScoreService {
     const scoreData = {
       ticketId,
       ruleId,
+      ownerId: assigneeId,
       score: calculatedScore,
       ruleName: rule.name || 'Règle sans nom',
       ticketKey: ticket.key || ticket.title || 'Ticket sans clé',
