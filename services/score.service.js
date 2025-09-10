@@ -265,44 +265,8 @@ class ScoreService {
       throw new Error('Le paramètre userId est requis');
     }
 
-    // 1. Récupérer tous les scores où ownerId == userId
-    const ticketScores = await TicketScoreModel.getTicketScoresByOwnerId(userId);
+    return TicketScoreModel.getTicketScoresByOwnerId(userId);
 
-    if (!ticketScores || ticketScores.length === 0) {
-      return {
-        total: 0,
-        weekly: 0,
-        score: 0,
-      };
-    }
-
-    let totalScore = 0;
-    let count = 0;
-    let weeklyCount = 0;
-    const now = new Date();
-
-    for (const score of ticketScores) {
-      if (score.score !== undefined) {
-        totalScore += score.score;
-        count++;
-
-        // Si le ticket a été affecté cette semaine
-        const dateAffect = score.dateAffection || score.dateAffectation;
-        if (dateAffect) {
-          const resolvedDate = new Date(dateAffect);
-          const diffDays = (now - resolvedDate) / (1000 * 60 * 60 * 24);
-          if (diffDays <= 7) {
-            weeklyCount++;
-          }
-        }
-      }
-    }
-
-    return {
-      total: count,
-      weekly: weeklyCount,
-      score: count ? Math.round(totalScore / count) : 0,
-    };
   }
 }
 

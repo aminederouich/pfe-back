@@ -37,6 +37,25 @@ const sendInvitationEmail = async(toEmail, firstName) => {
   return transporter.sendMail(mailOptions);
 };
 
+const sendScoreEmail = async(user, score) => {
+  const mailOptions = {
+    from: `${process.env.EMAIL_USER}`,
+    to: user.email,
+    subject: 'Votre score hebdomadaire sur TakeIt',
+    html: `
+      <div style="font-family:Arial,sans-serif;">
+        <h2>Bonjour ${user.firstName},</h2>
+        <p>Voici votre score hebdomadaire sur <strong>TakeIt</strong> :</p>
+        <p><strong>${score}</strong></p>
+        <p>Merci,<br>L'équipe TakeIt</p>
+      </div>
+    `,
+  };
+
+  return transporter.sendMail(mailOptions);
+};
+
 module.exports = {
   sendInvitationEmail,
+  sendScoreEmail,
 };
