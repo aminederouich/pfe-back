@@ -14,9 +14,10 @@ const userRoutes = require('./routes/user');
 const projectRoutes = require('./routes/project.routes');
 const scoreRoutes = require('./routes/score.routes');
 const rulesRoutes = require('./routes/rules.routes');
-
+const HTTP_STATUS = require('./constants/httpStatus');
 const app = express();
 
+require('./services/weeklyScore.service');
 // Use CORS middleware
 app.use(cors());
 app.use(
@@ -43,18 +44,16 @@ app.use('/scores', scoreRoutes);
 app.use('/rules', rulesRoutes);
 
 // HTTP status codes
-const HTTP_STATUS_NOT_FOUND = 404;
-const HTTP_STATUS_INTERNAL_SERVER_ERROR = 500;
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  next(createError(HTTP_STATUS_NOT_FOUND));
+  next(createError(HTTP_STATUS.NOT_FOUND));
 });
 
 // error handler
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  res.status(err.status || HTTP_STATUS_INTERNAL_SERVER_ERROR);
+  res.status(err.status || HTTP_STATUS.INTERNAL_SERVER_ERROR);
   res.json({
     status: err.status,
     message: err.message,
