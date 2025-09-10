@@ -180,6 +180,12 @@ exports.getEmployeeGlobalScore = [
   async(req, res) => {
     try {
       const { uid } = req.params;
+      if (!uid) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          message: 'Paramètre \'uid\' manquant',
+        });
+      }
       const globalScore = await ScoreService.getEmployeeGlobalScore(uid);
 
       res.status(HTTP_STATUS.OK).json(globalScore);
