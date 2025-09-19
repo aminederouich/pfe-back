@@ -5,7 +5,8 @@ const { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } = re
 class User {
   constructor(userData) {
     this.uid = userData.uid;
-    this.emailAddress = userData.emailAddress || userData.email;
+    this.email = userData.email;
+    this.emailAddress = userData.emailAddress;
     this.firstName = userData.FirstName;
     this.lastName = userData.LastName;
     this.isEmployee = userData.IsEmployee;
