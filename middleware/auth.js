@@ -3,7 +3,6 @@ const AuthService = require('../services/auth.service');
 const HTTP_STATUS = require('../constants/httpStatus');
 
 const authMiddleware = async(req, res, next) => {
-  console.log('Starting authentication middleware...');
   try {
     // Get token from header
     const token = req.headers.authorization?.split(' ')[1];
@@ -18,7 +17,6 @@ const authMiddleware = async(req, res, next) => {
     }
 
     // Verify token using AuthService
-    console.log('Attempting to verify JWT token...');
     const result = await AuthService.verifyToken(token);
     console.log('JWT verification successful:', {
       uid: result.tokenData.uid,
