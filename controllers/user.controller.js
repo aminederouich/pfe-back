@@ -220,7 +220,7 @@ exports.setPassword = [authMiddleware,
     const user = auth.currentUser;
     try {
       await updatePassword(user, password);
-      return res.status(HTTP_STATUS.OK).json({ message: 'Mot de passe mis à jour avec succès.' });
+      return res.status(HTTP_STATUS.OK).json({ message: 'Mot de passe mis à jour avec succès.', error: false });
     } catch (error) {
       console.error('Erreur lors de la mise à jour du mot de passe:', error);
       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Erreur lors de la mise à jour du mot de passe.', error: error.message });
