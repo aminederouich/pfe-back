@@ -33,8 +33,8 @@ class AuthService {
       const user = await User.create({
         uid: firebaseUser.uid,
         email: firebaseUser.email,
-        FirstName: firstName,
-        LastName: lastName,
+        firstName,
+        lastName,
       });
 
       return {

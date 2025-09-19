@@ -7,10 +7,10 @@ class User {
     this.uid = userData.uid;
     this.email = userData.email;
     this.emailAddress = userData.emailAddress;
-    this.firstName = userData.FirstName;
-    this.lastName = userData.LastName;
-    this.isEmployee = userData.IsEmployee;
-    this.isManager = userData.IsManager;
+    this.firstName = userData.firstName;
+    this.lastName = userData.lastName;
+    this.isEmployee = userData.isEmployee;
+    this.isManager = userData.isManager;
     this.photoURL = userData.photoURL;
     this.phoneNumber = userData.phoneNumber;
     this.createdAt = userData.createdAt;
@@ -37,10 +37,10 @@ class User {
       const userDoc = {
         uid: userData.uid,
         email: userData.email,
-        FirstName: userData.FirstName || null,
-        LastName: userData.LastName || null,
-        IsEmployee: userData.IsEmployee || false,
-        IsManager: userData.IsManager || false,
+        firstName: userData.firstName || null,
+        lastName: userData.lastName || null,
+        isEmployee: userData.isEmployee || false,
+        isManager: userData.isManager || false,
         avatarUrls: userData.avatarUrls || null,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -125,13 +125,14 @@ class User {
   toPublicFormat() {
     return {
       uid: this.uid,
+      email: this.email,
       accountId: this.accountId,
       emailAddress: this.emailAddress,
-      FirstName: this.firstName,
-      LastName: this.lastName,
-      IsEmployee: this.isEmployee,
       displayName: this.displayName,
-      IsManager: this.isManager,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      isEmployee: this.isEmployee,
+      isManager: this.isManager,
       photoURL: this.photoURL,
       phoneNumber: this.phoneNumber,
       accountType: this.accountType,
