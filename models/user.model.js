@@ -1,19 +1,28 @@
+/* eslint-disable complexity */
 const { db } = require('../config/firebase');
-const { doc, setDoc, getDoc, updateDoc } = require('firebase/firestore');
+const { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } = require('firebase/firestore');
 
 class User {
   constructor(userData) {
     this.uid = userData.uid;
-    this.email = userData.email;
-    this.firstName = userData.FirstName || null;
-    this.lastName = userData.LastName || null;
-    this.isEmployee = userData.IsEmployee || false;
-    this.isManager = userData.IsManager || false;
-    this.photoURL = userData.photoURL || null;
-    this.phoneNumber = userData.phoneNumber || null;
-    this.createdAt = userData.createdAt || null;
-    this.updatedAt = userData.updatedAt || null;
-    this.managerId = userData.managerId || null;
+    this.emailAddress = userData.emailAddress || userData.email;
+    this.firstName = userData.FirstName;
+    this.lastName = userData.LastName;
+    this.isEmployee = userData.IsEmployee;
+    this.isManager = userData.IsManager;
+    this.photoURL = userData.photoURL;
+    this.phoneNumber = userData.phoneNumber;
+    this.createdAt = userData.createdAt;
+    this.updatedAt = userData.updatedAt;
+    this.managerId = userData.managerId;
+    this.accountId = userData.accountId;
+    this.accountType = userData.accountType;
+    this.displayName = userData.displayName;
+    this.avatarUrls = userData.avatarUrls;
+    this.active = userData.active;
+    this.invited = userData.invited;
+    this.locale = userData.locale;
+    this.self = userData.self;
   }
 
   /**
@@ -31,8 +40,7 @@ class User {
         LastName: userData.LastName || null,
         IsEmployee: userData.IsEmployee || false,
         IsManager: userData.IsManager || false,
-        photoURL: userData.photoURL || null,
-        phoneNumber: userData.phoneNumber || null,
+        avatarUrls: userData.avatarUrls || null,
         createdAt: new Date(),
         updatedAt: new Date(),
         managerId: userData.managerId || null,
@@ -60,6 +68,26 @@ class User {
       return null;
     } catch (error) {
       console.error('Error finding user by UID:', error);
+      throw new Error('Failed to retrieve user from database');
+    }
+  }
+
+  /**
+   * Find a user by accountId
+   * @param {string} accountId - accountId field stored in document
+   * @returns {Promise<User|null>} - User instance or null
+   */
+  static async findByAccountId(accountId) {
+    try {
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('accountId', '==', accountId));
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) {
+        return null;
+      }
+      return new User(snapshot.docs[0].data());
+    } catch (error) {
+      console.error('Error finding user by accountId:', error);
       throw new Error('Failed to retrieve user from database');
     }
   }
@@ -96,16 +124,24 @@ class User {
   toPublicFormat() {
     return {
       uid: this.uid,
-      email: this.email,
+      accountId: this.accountId,
+      emailAddress: this.emailAddress,
       FirstName: this.firstName,
       LastName: this.lastName,
       IsEmployee: this.isEmployee,
+      displayName: this.displayName,
       IsManager: this.isManager,
       photoURL: this.photoURL,
       phoneNumber: this.phoneNumber,
+      accountType: this.accountType,
+      avatarUrls: this.avatarUrls,
+      active: this.active,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       managerId: this.managerId,
+      invited: this.invited,
+      locale: this.locale,
+      self: this.self,
     };
   }
 
@@ -119,6 +155,8 @@ class User {
       email: this.email,
       isEmployee: this.isEmployee,
       isManager: this.isManager,
+      accountId: this.accountId,
+      accountType: this.accountType,
     };
   }
 }

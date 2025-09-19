@@ -93,7 +93,7 @@ module.exports = {
     // Complexity
     'complexity': ['warn', 10], // Complexité cyclomatique
     'max-depth': ['warn', 4], // Profondeur maximale d'imbrication
-    'max-lines': ['warn', 300], // Nombre maximum de lignes par fichier
+    // 'max-lines': ['warn', 300], // Nombre maximum de lignes par fichier
     'max-params': ['warn', 4], // Nombre maximum de paramètres
 
     // Additional Best Practices
