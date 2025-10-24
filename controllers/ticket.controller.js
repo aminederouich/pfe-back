@@ -10,30 +10,35 @@ const {
 } = require('firebase/firestore');
 const { db } = require('../config/firebase');
 const authMiddleware = require('../middleware/auth');
-const createJiraClient = require('../middleware/jiraClient');
 const HTTP_STATUS = require('../constants/httpStatus');
 const jiraConfigService = require('../services/jiraConfig.service');
 const ticketService = require('../services/ticket.service');
 const TicketModel = require('../models/ticket.model');
+const JiraConfig = require('../models/jiraConfig.model');
+const projectService = require('../services/project.service');
 
 exports.getAllTicket = [
   authMiddleware,
   async(req, res) => {
     try {
-      const configs = await jiraConfigService.getAllConfigs();
+      const configs = await JiraConfig.findAll();
       const allTicketsResult = [];
+      const jiraAllTickets = [];
       for (const config of configs) {
         if (config.enableConfig) {
           try {
-            const jira = createJiraClient(config);
-            const testConnection = await jiraConfigService.testConnection(config);
-            const isConnected = Object.prototype.hasOwnProperty.call(testConnection, 'userInfo');
-            if (isConnected) {
-              const allTicket = await ticketService.fetchProjectsAndIssues(jira);
-              if (allTicket.length > 0) {
-                for (const ticket of allTicket) {
-                  await ticketService.syncTicketWithFirebase(ticket, config.id);
-                }
+            const testConnection = await JiraConfig.testConnection(config);
+            await JiraConfig.validateConfig(config);
+            if (testConnection) {
+              const allprojectsFromJiraApi = await projectService.getProjectsPaginated(config);
+              const projectNames = allprojectsFromJiraApi.values.map(project => project.name);
+              for (const projectName of projectNames) {
+                const idsList = await ticketService.SearchForIssuesUsingJQLEnhancedSearch(projectName, config);
+                jiraAllTickets.push(...idsList.issues);
+              }
+              for (const ticket of jiraAllTickets) {
+                const ticketToSync = await ticketService.getIssueDetails(ticket.id, config);
+                await ticketService.syncTicketWithFirebase(ticketToSync, config.id);
               }
             } else {
               allTicketsResult.push({
@@ -43,12 +48,8 @@ exports.getAllTicket = [
               });
             }
 
-            const configTickets = await TicketModel.getTicketByConfigId(config.id);
+            const configTickets = await TicketModel.findAllTickets();
             allTicketsResult.push(...configTickets);
-            if (config.id === configs[configs.length - 1].id) {
-              const noConfigTickets = await TicketModel.getTicketByConfigId('');
-              allTicketsResult.push(...noConfigTickets);
-            }
           } catch (error) {
 
             allTicketsResult.push({

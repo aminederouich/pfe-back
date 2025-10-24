@@ -25,6 +25,7 @@ class TicketModel {
       throw new Error(error);
     }
   }
+
   static async getTicketById(ticketId) {
     try {
       const q = query(collection(db, collectionName), where('id', '==', ticketId));

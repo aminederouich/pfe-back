@@ -66,6 +66,51 @@ class ticketService {
     TicketModel.updateOrSyncTicketInBase(existingTicket, ticket, existingData, updatedFields);
 
   }
+
+  async SearchForIssuesUsingJQLEnhancedSearch(projectName, config) {
+    const url = `${config.protocol}://${config.host}/rest/api/${config.apiVersion}/search/jql`;
+    const headers = {
+      Authorization: `Basic ${Buffer.from(
+        `${config.username}:${config.password}`,
+      ).toString('base64')}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ jql: `project=${projectName}` }),
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch issues: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw new Error(`Jira connection test failed: ${error.message}`);
+    }
+  }
+
+  async getIssueDetails(issueId, config) {
+    const url = `${config.protocol}://${config.host}/rest/api/${config.apiVersion}/issue/${issueId}`;
+    const headers = {
+      Authorization: `Basic ${Buffer.from(
+        `${config.username}:${config.password}`,
+      ).toString('base64')}`,
+      'Accept': 'application/json',
+    };
+    try {
+      const response = await fetch(url, { method: 'GET', headers });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch issue details: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw new Error(`Jira connection test failed: ${error.message}`);
+    }
+  }
 }
 
 module.exports = new ticketService();
