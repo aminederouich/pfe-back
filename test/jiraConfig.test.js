@@ -1,17 +1,21 @@
 const request = require('supertest');
 const express = require('express');
 
-// Mock du service jiraConfig
-const mockJiraConfigService = {
-  testConnection: jest.fn(),
-  getAllConfigs: jest.fn(),
-  getEnabledConfigs: jest.fn(),
-  getConfigById: jest.fn(),
-  createConfig: jest.fn(),
-  deleteConfigById: jest.fn(),
-  updateConfigById: jest.fn(),
-  validateConfigData: jest.fn()
-};
+const mockSave = jest.fn();
+const mockJiraConfigModel = jest
+  .fn()
+  .mockImplementation(() => ({
+    save: mockSave,
+  }));
+
+mockJiraConfigModel.findAll = jest.fn();
+mockJiraConfigModel.findByHost = jest.fn();
+mockJiraConfigModel.deleteById = jest.fn();
+mockJiraConfigModel.updateById = jest.fn();
+mockJiraConfigModel.validateConfigData = jest.fn();
+mockJiraConfigModel.testConnection = jest.fn();
+mockJiraConfigModel.findById = jest.fn();
+mockJiraConfigModel.findEnabledConfigs = jest.fn();
 
 // Mock simple du middleware d'authentification
 const mockAuthMiddleware = (req, res, next) => {
@@ -20,11 +24,12 @@ const mockAuthMiddleware = (req, res, next) => {
 };
 
 // Mocks définis avant l'importation des modules
-jest.mock('../services/jiraConfig.service', () => mockJiraConfigService);
+jest.mock('../models/jiraConfig.model', () => mockJiraConfigModel);
 jest.mock('../middleware/auth', () => mockAuthMiddleware);
 
 // Import des routes après les mocks
 const jiraConfigRoutes = require('../routes/jira_config.routes');
+const JiraConfig = require('../models/jiraConfig.model');
 
 describe('Jira Config Routes Tests', () => {
   let app;
@@ -37,6 +42,11 @@ describe('Jira Config Routes Tests', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockJiraConfigModel.mockClear();
+    mockSave.mockReset();
+    mockJiraConfigModel.mockImplementation(() => ({
+      save: mockSave,
+    }));
   });
 
   describe('GET /jira-config/getAllConfig', () => {
@@ -50,7 +60,7 @@ describe('Jira Config Routes Tests', () => {
         }
       ];
 
-      mockJiraConfigService.getAllConfigs.mockResolvedValue(mockConfigs);
+      JiraConfig.findAll.mockResolvedValue(mockConfigs);
 
       const response = await request(app)
         .get('/jira-config/getAllConfig')
@@ -61,11 +71,11 @@ describe('Jira Config Routes Tests', () => {
         message: 'Jira client configuration retrieved successfully',
         data: mockConfigs
       });
-      expect(mockJiraConfigService.getAllConfigs).toHaveBeenCalled();
+      expect(JiraConfig.findAll).toHaveBeenCalled();
     });
 
     test('should handle errors when retrieving configurations', async () => {
-      mockJiraConfigService.getAllConfigs.mockRejectedValue(new Error('Database error'));
+      JiraConfig.findAll.mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .get('/jira-config/getAllConfig')
@@ -92,8 +102,9 @@ describe('Jira Config Routes Tests', () => {
         ...configData
       };
 
-      mockJiraConfigService.validateConfigData.mockReturnValue(null);
-      mockJiraConfigService.createConfig.mockResolvedValue(mockNewConfig);
+      JiraConfig.validateConfigData.mockReturnValue(null);
+      JiraConfig.findByHost.mockResolvedValue(false);
+      mockSave.mockResolvedValue(mockNewConfig);
 
       const response = await request(app)
         .post('/jira-config/addConfig')
@@ -105,8 +116,10 @@ describe('Jira Config Routes Tests', () => {
         message: 'Jira client configuration added successfully',
         data: mockNewConfig
       });
-      expect(mockJiraConfigService.validateConfigData).toHaveBeenCalledWith(configData);
-      expect(mockJiraConfigService.createConfig).toHaveBeenCalledWith(configData);
+      expect(JiraConfig.validateConfigData).toHaveBeenCalledWith(configData);
+      expect(JiraConfig.findByHost).toHaveBeenCalledWith(configData.host);
+      expect(mockJiraConfigModel).toHaveBeenCalledWith(configData);
+      expect(mockSave).toHaveBeenCalled();
     });
   });
 
@@ -114,7 +127,7 @@ describe('Jira Config Routes Tests', () => {
     test('should delete configurations successfully', async () => {
       const configIds = [1, 2, 3];
 
-      mockJiraConfigService.deleteConfigById.mockResolvedValue();
+      JiraConfig.deleteById.mockResolvedValue();
 
       const response = await request(app)
         .post('/jira-config/deleteConfigByID')
@@ -125,7 +138,10 @@ describe('Jira Config Routes Tests', () => {
         error: false,
         message: 'Jira client configuration deleted successfully'
       });
-      expect(mockJiraConfigService.deleteConfigById).toHaveBeenCalledWith(configIds);
+      expect(JiraConfig.deleteById).toHaveBeenCalledTimes(configIds.length);
+      configIds.forEach((id, index) => {
+        expect(JiraConfig.deleteById).toHaveBeenNthCalledWith(index + 1, id);
+      });
     });
   });
 });
