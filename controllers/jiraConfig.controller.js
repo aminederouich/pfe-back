@@ -1,12 +1,12 @@
-const jiraConfigService = require('../services/jiraConfig.service');
 const authMiddleware = require('../middleware/auth');
 const HTTP_STATUS = require('../constants/httpStatus');
+const JiraConfig = require('../models/jiraConfig.model');
 
 exports.checkConncetionJiraAPI = [
   authMiddleware,
   async(req, res) => {
     try {
-      const result = await jiraConfigService.testConnection(req.body);
+      const result = await JiraConfig.testConnection(req.body);
       res.status(HTTP_STATUS.OK).json({
         error: false,
         message: result.message,
@@ -36,7 +36,7 @@ exports.getAllConfigJiraClient = [
   authMiddleware,
   async(req, res) => {
     try {
-      const configs = await jiraConfigService.getAllConfigs();
+      const configs = await JiraConfig.findAll();
       res.status(HTTP_STATUS.OK).json({
         error: false,
         message: 'Jira client configuration retrieved successfully',
@@ -57,7 +57,7 @@ exports.addConfigJiraClient = [
   async(req, res) => {
     try {
       // Validation des données
-      const validationErrors = jiraConfigService.validateConfigData(req.body);
+      const validationErrors = JiraConfig.validateConfigData(req.body);
       if (validationErrors) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           error: true,
@@ -66,7 +66,17 @@ exports.addConfigJiraClient = [
         });
       }
 
-      const newConfig = await jiraConfigService.createConfig(req.body);
+      const exists = await JiraConfig.findByHost(req.body.host);
+      if (exists) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          error: true,
+          message: 'Configuration already exists for this host',
+        });
+      }
+
+      const config = new JiraConfig(req.body);
+      const newConfig = await config.save();
+
       res.status(HTTP_STATUS.CREATED).json({
         error: false,
         message: 'Jira client configuration added successfully',
@@ -103,7 +113,12 @@ exports.deleteConfigJiraClientByID = [
     }
 
     try {
-      await jiraConfigService.deleteConfigById(ids);
+      const results = [];
+      for (const id of ids) {
+        const result = await JiraConfig.deleteById(id);
+        results.push(result);
+      }
+
       res.status(HTTP_STATUS.OK).json({
         error: false,
         message: 'Jira client configuration deleted successfully',
@@ -132,7 +147,7 @@ exports.updateConfigJiraClient = [
 
     try {
       // Validation des données
-      const validationErrors = jiraConfigService.validateConfigData(configData);
+      const validationErrors = JiraConfig.validateConfigData(configData);
       if (validationErrors) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
           error: true,
@@ -141,10 +156,7 @@ exports.updateConfigJiraClient = [
         });
       }
 
-      const updatedConfig = await jiraConfigService.updateConfigById(
-        id,
-        configData,
-      );
+      const updatedConfig = await JiraConfig.updateById(id, configData);
       res.status(HTTP_STATUS.OK).json({
         error: false,
         message: 'Jira client configuration updated successfully',
@@ -182,7 +194,7 @@ exports.getConfigJiraClientByID = [
     }
 
     try {
-      const config = await jiraConfigService.getConfigById(id);
+      const config = await JiraConfig.findById(id);
       res.status(HTTP_STATUS.OK).json({
         error: false,
         message: 'Jira client configuration retrieved successfully',
@@ -211,7 +223,7 @@ exports.getEnabledConfigJiraClient = [
   authMiddleware,
   async(req, res) => {
     try {
-      const configs = await jiraConfigService.getEnabledConfigs();
+      const configs = await JiraConfig.findEnabledConfigs();
       res.status(HTTP_STATUS.OK).json({
         error: false,
         message: 'Enabled Jira client configurations retrieved successfully',

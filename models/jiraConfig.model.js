@@ -10,6 +10,7 @@ const {
   setDoc,
   getDoc,
 } = require('firebase/firestore');
+const jiraConfigService = require('../services/jiraConfig.service');
 
 class JiraConfig {
   constructor(configData) {
@@ -122,6 +123,130 @@ class JiraConfig {
       throw new Error('Error retrieving enabled Jira configurations');
     }
   }
+
+  static async validateConfig(configData) {
+    const requiredFields = [
+      'protocol',
+      'host',
+      'username',
+      'password',
+      'apiVersion',
+      'strictSSL',
+    ];
+
+    for (const field of requiredFields) {
+      if (
+        configData[field] === undefined ||
+        configData[field] === null ||
+        configData[field] === ''
+      ) {
+        throw new Error(`Missing required field: ${field}`);
+      }
+    }
+    return true;
+  }
+
+  static async testConnection(configData) {
+    this.validateConfig(configData);
+    const myself = await jiraConfigService.myself(configData);
+    if (myself && myself.accountId && myself.active) {
+      return true;
+    }
+    throw new Error('Failed to connect to Jira with provided configuration');
+  }
+
+  static async validateConfigData(configData) {
+    const errors = {};
+    const MIN_USERNAME_LENGTH = 3;
+    const MIN_PASSWORD_LENGTH = 6;
+
+    function validateProtocol(protocol) {
+      if (!protocol) {
+        return 'Protocol is required';
+      }
+      if (!['http', 'https'].includes(protocol)) {
+        return 'Protocol must be \'http\' or \'https\'';
+      }
+      return null;
+    }
+
+    function validateHost(host) {
+      if (!host) {
+        return 'Host is required';
+      }
+      if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(host)) {
+        return 'Invalid host format';
+      }
+      return null;
+    }
+
+    function validateUsername(username) {
+      if (!username) {
+        return 'Username is required';
+      }
+      if (username.length < MIN_USERNAME_LENGTH) {
+        return `Username must be at least ${MIN_USERNAME_LENGTH} characters`;
+      }
+      return null;
+    }
+
+    function validatePassword(password) {
+      if (!password) {
+        return 'Password is required';
+      }
+      if (password.length < MIN_PASSWORD_LENGTH) {
+        return `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
+      }
+      return null;
+    }
+
+    function validateApiVersion(apiVersion) {
+      if (!apiVersion) {
+        return 'API version is required';
+      }
+      return null;
+    }
+
+    function validateStrictSSL(strictSSL) {
+      if (strictSSL === undefined) {
+        return 'StrictSSL setting is required';
+      }
+      return null;
+    }
+
+    const protocolError = validateProtocol(configData.protocol);
+    if (protocolError) {
+      errors.protocol = protocolError;
+    }
+
+    const hostError = validateHost(configData.host);
+    if (hostError) {
+      errors.host = hostError;
+    }
+
+    const usernameError = validateUsername(configData.username);
+    if (usernameError) {
+      errors.username = usernameError;
+    }
+
+    const passwordError = validatePassword(configData.password);
+    if (passwordError) {
+      errors.password = passwordError;
+    }
+
+    const apiVersionError = validateApiVersion(configData.apiVersion);
+    if (apiVersionError) {
+      errors.apiVersion = apiVersionError;
+    }
+
+    const strictSSLError = validateStrictSSL(configData.strictSSL);
+    if (strictSSLError) {
+      errors.strictSSL = strictSSLError;
+    }
+
+    return Object.keys(errors).length > 0 ? errors : null;
+  }
+
 }
 
 module.exports = JiraConfig;
