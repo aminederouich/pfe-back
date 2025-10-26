@@ -11,7 +11,6 @@ const {
 const { db } = require('../config/firebase');
 const authMiddleware = require('../middleware/auth');
 const HTTP_STATUS = require('../constants/httpStatus');
-const jiraConfigService = require('../services/jiraConfig.service');
 const ticketService = require('../services/ticket.service');
 const TicketModel = require('../models/ticket.model');
 const JiraConfig = require('../models/jiraConfig.model');
