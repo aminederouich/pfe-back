@@ -11,7 +11,6 @@ const {
 const { db } = require('../config/firebase');
 const authMiddleware = require('../middleware/auth');
 const HTTP_STATUS = require('../constants/httpStatus');
-const jiraConfigService = require('../services/jiraConfig.service');
 const ticketService = require('../services/ticket.service');
 const TicketModel = require('../models/ticket.model');
 const JiraConfig = require('../models/jiraConfig.model');
@@ -122,7 +121,7 @@ exports.updateTicket = [
       }
 
       if (ticket.configId.length > 0) {
-        const config = await jiraConfigService.getConfigById(ticket.configId);
+        const config = await JiraConfig.findById(ticket.configId);
         if (!config) {
           return res.status(HTTP_STATUS.BAD_REQUEST).json({
             success: false,
@@ -137,13 +136,13 @@ exports.updateTicket = [
             error: result.error,
           });
         }
-        const existingTicket = await TicketModel.findByIdAndConfigId(ticket);
-        const existingData = existingTicket.data();
-        const hasChanges = JSON.stringify(existingData.fields) !== JSON.stringify(ticket.fields);
-        if (hasChanges) {
-          // Merge only the modified fields into the existing fields
-          ticketService.updateTicketInBase(existingTicket, existingData, ticket);
-        }
+        // const existingTicket = await TicketModel.findByIdAndConfigId(ticket);
+        // const existingData = existingTicket.data();
+        // const hasChanges = JSON.stringify(existingData.fields) !== JSON.stringify(ticket.fields);
+        // if (hasChanges) {
+        //   // Merge only the modified fields into the existing fields
+        //   ticketService.updateTicketInBase(existingTicket, existingData, ticket);
+        // }
         res.status(HTTP_STATUS.OK).json({
           success: true,
           message: 'Ticket updated successfully in Jira and Firebase',
