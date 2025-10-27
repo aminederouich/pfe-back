@@ -1,6 +1,5 @@
 const ticketService = require('../services/ticket.service');
 
-// Basic config mock
 const config = {
   protocol: 'https',
   host: 'example.atlassian.net',
@@ -9,59 +8,55 @@ const config = {
   password: 'pass',
 };
 
-describe('ticketService.assignIssue', () => {
+describe('ticketService.getIssueDetails', () => {
   const originalFetch = global.fetch;
+
   afterEach(() => {
     global.fetch = originalFetch;
+    jest.clearAllMocks();
   });
 
-  test('returns success for 204 No Content', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      status: 204,
-      statusText: 'No Content',
-      text: async () => '',
-    });
-
-    const result = await ticketService.assignIssue('TEST-1', 'acc-123', config);
-    expect(result.success).toBe(true);
-    expect(result.status).toBe(204);
-    expect(result.data).toBeNull();
-  });
-
-  test('parses JSON body when present', async () => {
-    const bodyObj = { result: 'ok' };
+  test('returns parsed issue data when request succeeds', async () => {
+    const payload = { key: 'TEST-1', fields: {} };
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       status: 200,
       statusText: 'OK',
-      text: async () => JSON.stringify(bodyObj),
+      json: async () => payload,
     });
 
-    const result = await ticketService.assignIssue('TEST-2', 'acc-456', config);
-    expect(result.success).toBe(true);
-    expect(result.status).toBe(200);
-    expect(result.data).toEqual(bodyObj);
+    const result = await ticketService.getIssueDetails('TEST-1', config);
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://example.atlassian.net/rest/api/3/issue/TEST-1',
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Basic ${Buffer.from('user@example.com:pass').toString('base64')}`,
+          Accept: 'application/json',
+        },
+      },
+    );
+    expect(result).toEqual(payload);
   });
 
-  test('handles non-JSON body error', async () => {
+  test('throws when Jira returns a non-OK status', async () => {
     global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      statusText: 'OK',
-      text: async () => 'not-json',
+      ok: false,
+      status: 404,
+      statusText: 'Not Found',
     });
 
-    const result = await ticketService.assignIssue('TEST-3', 'acc-789', config);
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/Unexpected token|JSON/);
-    expect(result.raw).toBe('not-json');
+    await expect(ticketService.getIssueDetails('TEST-404', config)).rejects.toThrow(
+      'Failed to fetch issue details: 404 Not Found',
+    );
   });
 
-  test('handles fetch failure', async () => {
+  test('wraps fetch failures with Jira connection message', async () => {
     global.fetch = jest.fn().mockRejectedValue(new Error('network down'));
-    const result = await ticketService.assignIssue('TEST-4', 'acc-000', config);
-    expect(result.success).toBe(false);
-    expect(result.error).toBe('network down');
+
+    await expect(ticketService.getIssueDetails('TEST-ERR', config)).rejects.toThrow(
+      'Jira connection test failed: network down',
+    );
   });
 });
