@@ -79,59 +79,6 @@ class ticketService {
       throw new Error(`Jira connection test failed: ${error.message}`);
     }
   }
-
-  async assignIssue(issueId, jiraId, config) {
-    const url = `${config.protocol}://${config.host}/rest/api/${config.apiVersion}/issue/${issueId}/assignee`;
-    const headers = {
-      Authorization: `Basic ${Buffer.from(
-        `${config.username}:${config.password}`,
-      ).toString('base64')}`,
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    };
-    try {
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify({ accountId: jiraId }),
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to assign issue: ${response.status} ${response.statusText}`);
-      }
-      // Jira often returns 204 No Content for successful assignment.
-      const NO_CONTENT_STATUS = 204;
-      let parsed = null;
-      // Safely attempt to parse JSON only if there appears to be a body
-      if (response.status !== NO_CONTENT_STATUS) {
-        const text = await response.text();
-        if (text && text.trim().length > 0) {
-          try {
-            parsed = JSON.parse(text);
-          } catch (parseErr) {
-            return {
-              success: false,
-              message: 'Received non-JSON response body when JSON expected',
-              error: parseErr.message,
-              raw: text,
-              status: response.status,
-            };
-          }
-        }
-      }
-      return {
-        success: true,
-        message: 'Issue assigned successfully',
-        data: parsed,
-        status: response.status,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: 'Jira connection test failed',
-        error: error.message,
-      };
-    }
-  }
 }
 
 module.exports = new ticketService();

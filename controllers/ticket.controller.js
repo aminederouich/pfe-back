@@ -121,7 +121,7 @@ exports.updateTicket = [
       }
 
       if (ticket.configId.length > 0) {
-        let result = {};
+        const result = {};
         const config = await JiraConfig.findById(ticket.configId);
         if (!config) {
           return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -136,11 +136,6 @@ exports.updateTicket = [
         }
         if (fieldKey === 'status') {
           console.log('here');
-        }
-        if (fieldKey === 'assignee') {
-          const assignee = ticket.fields.assignee || {};
-          const { jiraId } = assignee;
-          result = await ticketService.assignIssue(ticket.key, jiraId, config);
         }
 
         // const result = await ticketService.updateIssueJiraClient(ticket, config);
