@@ -121,6 +121,7 @@ exports.updateTicket = [
       }
 
       if (ticket.configId.length > 0) {
+        let result = {};
         const config = await JiraConfig.findById(ticket.configId);
         if (!config) {
           return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -128,21 +129,28 @@ exports.updateTicket = [
             message: 'Jira configuration not found for this ticket',
           });
         }
-        const result = await ticketService.updateIssueJiraClient(ticket, config);
-        if (result !== undefined && !result.success) {
+        const [fieldKey] = Object.keys(ticket.fields);
+        console.log(fieldKey);
+        if (fieldKey === 'summary') {
+          console.log('here');
+        }
+        if (fieldKey === 'status') {
+          console.log('here');
+        }
+        if (fieldKey === 'assignee') {
+          const assignee = ticket.fields.assignee || {};
+          const { jiraId } = assignee;
+          result = await ticketService.assignIssue(ticket.key, jiraId, config);
+        }
+
+        // const result = await ticketService.updateIssueJiraClient(ticket, config);
+        if (result && result.success === false) {
           return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: 'Error updating ticket in Jira',
             error: result.error,
           });
         }
-        // const existingTicket = await TicketModel.findByIdAndConfigId(ticket);
-        // const existingData = existingTicket.data();
-        // const hasChanges = JSON.stringify(existingData.fields) !== JSON.stringify(ticket.fields);
-        // if (hasChanges) {
-        //   // Merge only the modified fields into the existing fields
-        //   ticketService.updateTicketInBase(existingTicket, existingData, ticket);
-        // }
         res.status(HTTP_STATUS.OK).json({
           success: true,
           message: 'Ticket updated successfully in Jira and Firebase',

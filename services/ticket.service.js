@@ -2,32 +2,6 @@ const createJiraClient = require('../middleware/jiraClient');
 const TicketModel = require('../models/ticket.model');
 
 class ticketService {
-  async getIssuesForProject(jira, projectKey) {
-    let startAt = 0;
-    const maxResults = 50;
-    let allIssues = [];
-    let total = 0;
-    do {
-      const result = await jira.searchJira(`project = ${projectKey}`, {
-        startAt,
-        maxResults,
-      });
-      allIssues = allIssues.concat(result.issues);
-      ({ total } = result);
-      startAt += maxResults;
-    } while (startAt < total);
-    return allIssues;
-  }
-
-  async fetchProjectsAndIssues(jira) {
-    const projects = await jira.listProjects();
-    const allIssues = [];
-    for (const project of projects) {
-      const issues = await this.getIssuesForProject(jira, project.key);
-      allIssues.push(...issues);
-    }
-    return allIssues;
-  }
 
   async syncTicketWithFirebase(ticket, configId) {
   // Check if ticket exists with same key and configId
@@ -59,12 +33,6 @@ class ticketService {
         error: jiraError.message,
       };
     }
-  }
-
-  async updateTicketInBase(existingTicket, existingData, ticket) {
-    const updatedFields = { ...existingData.fields, ...ticket.fields, updated: new Date() };
-    TicketModel.updateOrSyncTicketInBase(existingTicket, ticket, existingData, updatedFields);
-
   }
 
   async SearchForIssuesUsingJQLEnhancedSearch(projectName, config) {
@@ -109,6 +77,59 @@ class ticketService {
       return data;
     } catch (error) {
       throw new Error(`Jira connection test failed: ${error.message}`);
+    }
+  }
+
+  async assignIssue(issueId, jiraId, config) {
+    const url = `${config.protocol}://${config.host}/rest/api/${config.apiVersion}/issue/${issueId}/assignee`;
+    const headers = {
+      Authorization: `Basic ${Buffer.from(
+        `${config.username}:${config.password}`,
+      ).toString('base64')}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+    try {
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ accountId: jiraId }),
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to assign issue: ${response.status} ${response.statusText}`);
+      }
+      // Jira often returns 204 No Content for successful assignment.
+      const NO_CONTENT_STATUS = 204;
+      let parsed = null;
+      // Safely attempt to parse JSON only if there appears to be a body
+      if (response.status !== NO_CONTENT_STATUS) {
+        const text = await response.text();
+        if (text && text.trim().length > 0) {
+          try {
+            parsed = JSON.parse(text);
+          } catch (parseErr) {
+            return {
+              success: false,
+              message: 'Received non-JSON response body when JSON expected',
+              error: parseErr.message,
+              raw: text,
+              status: response.status,
+            };
+          }
+        }
+      }
+      return {
+        success: true,
+        message: 'Issue assigned successfully',
+        data: parsed,
+        status: response.status,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Jira connection test failed',
+        error: error.message,
+      };
     }
   }
 }
