@@ -1,4 +1,4 @@
-const { collection, addDoc, getDocs, doc, getDoc } = require('firebase/firestore');
+const { collection, addDoc, getDocs, doc, getDoc, query, where } = require('firebase/firestore');
 const { db } = require('../config/firebase');
 
 const collectionName = 'scores';
@@ -24,6 +24,16 @@ const ScoreModel = {
     }
     return null;
   },
+  async getWeekScores(startOfWeek, endOfWeek) {
+    const scoreQuery = query(
+      collection(db, 'ticketScores'),
+      where('dateAffection', '>=', startOfWeek),
+      where('dateAffection', '<=', endOfWeek),
+    );
+    const snapshot = await getDocs(scoreQuery);
+    return snapshot.docs.map(doc => doc.data());
+  },
+
 };
 
 module.exports = ScoreModel;
