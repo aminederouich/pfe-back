@@ -86,12 +86,13 @@ async function fetchAllUsers() {
 }
 
 async function sendLeaderboardEmails({ allUsers, userScores, leaderboard, startOfWeek, endOfWeek }) {
-  WeeklyTopScores.create({
+  // Persist weekly leaderboard snapshot (best-effort: should not break the whole weekly process)
+  await WeeklyTopScores.create({
     id: startOfWeek.toISOString().slice(0, 10).replace(/-/g, ''),
     startOfWeek,
     endOfWeek,
     leaderboard,
-  });
+  }).catch(() => null); // Silently ignore persistence issues in this context
   let sent = 0;
   for (const rawUser of allUsers) {
     const user = new User(rawUser);
