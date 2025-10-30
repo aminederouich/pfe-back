@@ -19,12 +19,6 @@ class ticketService {
       const [fieldKey] = Object.keys(ticket.fields);
       if (fieldKey === 'summary') {
         await jira.updateIssue(ticket.key, { fields: ticket.fields }, {});
-      } else if (fieldKey === 'status') {
-        const transitions = await jira.listTransitions(ticket.key);
-        const transition = transitions.transitions.find(t => t.to.name === ticket.fields.status.name);
-        if (transition) {
-          await jira.transitionIssue(ticket.key, { transition: { id: transition.id } });
-        }
       }
     } catch (jiraError) {
       return {
@@ -79,6 +73,53 @@ class ticketService {
       throw new Error(`Jira connection test failed: ${error.message}`);
     }
   }
+
+  async getTransitions(issueId, config) {
+    const url = `${config.protocol}://${config.host}/rest/api/${config.apiVersion}/issue/${issueId}/transitions`;
+    const headers = {
+      Authorization: `Basic ${Buffer.from(
+        `${config.username}:${config.password}`,
+      ).toString('base64')}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+    try {
+      const response = await fetch(url, { method: 'GET', headers });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch issue transitions: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw new Error(`Jira connection test failed: ${error.message}`);
+    }
+  }
+
+  async transitionIssue(issueId, transitionId, config) {
+    const url = `${config.protocol}://${config.host}/rest/api/${config.apiVersion}/issue/${issueId}/transitions`;
+    const headers = {
+      Authorization: `Basic ${Buffer.from(
+        `${config.username}:${config.password}`,
+      ).toString('base64')}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+    const body = { transition: { id: transitionId } };
+    try {
+      const response = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+      if (!response.ok) {
+        throw new Error(`Failed to transition issue: ${response.status} ${response.statusText}`);
+      }
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Error transitioning issue in Jira',
+        error: error.message,
+      };
+    }
+  }
+
 }
 
 module.exports = new ticketService();

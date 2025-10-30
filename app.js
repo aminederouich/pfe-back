@@ -14,6 +14,7 @@ const userRoutes = require('./routes/user.routes');
 const projectRoutes = require('./routes/project.routes');
 const scoreRoutes = require('./routes/score.routes');
 const rulesRoutes = require('./routes/rules.routes');
+const weeklyTopScoresRoutes = require('./routes/weeklytopscores.routes');
 const HTTP_STATUS = require('./constants/httpStatus');
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/ticket', ticketRoutes);
 app.use('/project', projectRoutes);
 app.use('/scores', scoreRoutes);
 app.use('/rules', rulesRoutes);
+app.use('/weeklytopscores', weeklyTopScoresRoutes);
 
 // HTTP status codes
 

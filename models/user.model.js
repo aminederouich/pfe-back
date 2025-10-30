@@ -23,7 +23,24 @@ class User {
     this.active = userData.active;
     this.invited = userData.invited;
     this.locale = userData.locale;
+    this.jiraId = userData.jiraId;
     this.self = userData.self;
+  }
+
+  static async getAll() {
+    try {
+      const usersSnapshot = await getDocs(collection(db, 'users'));
+      if (usersSnapshot.empty) {
+        return [];
+      }
+      return usersSnapshot.docs
+        .map(docSnap => docSnap.data())
+        .filter(userData => userData?.email)
+        .map(userData => new User(userData));
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      throw new Error('Failed to fetch users from database');
+    }
   }
 
   /**
@@ -69,6 +86,21 @@ class User {
       return null;
     } catch (error) {
       console.error('Error finding user by UID:', error);
+      throw new Error('Failed to retrieve user from database');
+    }
+  }
+
+  static async findByjiraId(jiraId) {
+    try {
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('jiraId', '==', jiraId));
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) {
+        return null;
+      }
+      return new User(snapshot.docs[0].data());
+    } catch (error) {
+      console.error('Error finding user by accountId:', error);
       throw new Error('Failed to retrieve user from database');
     }
   }
@@ -143,6 +175,7 @@ class User {
       managerId: this.managerId,
       invited: this.invited,
       locale: this.locale,
+      jiraId: this.jiraId,
       self: this.self,
     };
   }

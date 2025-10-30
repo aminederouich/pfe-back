@@ -121,7 +121,7 @@ exports.updateTicket = [
       }
 
       if (ticket.configId.length > 0) {
-        const result = {};
+        let result = {};
         const config = await JiraConfig.findById(ticket.configId);
         if (!config) {
           return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -130,12 +130,16 @@ exports.updateTicket = [
           });
         }
         const [fieldKey] = Object.keys(ticket.fields);
-        console.log(fieldKey);
         if (fieldKey === 'summary') {
           console.log('here');
         }
         if (fieldKey === 'status') {
-          console.log('here');
+          const transitions = await ticketService.getTransitions(ticket.key, config);
+          const transition = transitions.transitions.find(
+            t => ticket.fields.status.id === t.to.id,
+          );
+          const transitionId = transition ? transition.id : null;
+          result = await ticketService.transitionIssue(ticket.key, transitionId, config);
         }
 
         // const result = await ticketService.updateIssueJiraClient(ticket, config);
