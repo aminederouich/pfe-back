@@ -43,7 +43,7 @@ app.use('/ticket', ticketRoutes);
 app.use('/project', projectRoutes);
 app.use('/scores', scoreRoutes);
 app.use('/rules', rulesRoutes);
-app.use('/weeklytopscores', weeklyTopScoresRoutes);
+app.use('/weeklyscores', weeklyTopScoresRoutes);
 
 // HTTP status codes
 

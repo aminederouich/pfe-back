@@ -1,6 +1,7 @@
 const HTTP_STATUS = require('../constants/httpStatus');
 const authMiddleware = require('../middleware/auth');
 const WeeklyTopScores = require('../models/WeeklyTopScores.model');
+const WeeklyAllScores = require('../models/WeeklyAllScores.model');
 const scoreModel = require('../models/score.model');
 const User = require('../models/user.model');
 const userModel = require('../models/user.model');
@@ -31,6 +32,26 @@ exports.getAllWeeklyTopScores = [
   },
 ];
 
+exports.getAllWeeklyScores = [
+  authMiddleware,
+  async(req, res) => {
+    try {
+      const scores = await WeeklyAllScores.getAll();
+      res.status(HTTP_STATUS.OK).json({
+        success: true,
+        data: scores,
+        message: 'Scores hebdomadaires récupérés avec succès',
+      });
+    } catch (error) {
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: error.message,
+        message: 'Erreur lors de la récupération des scores hebdomadaires',
+      });
+    }
+  },
+];
+
 function aggregateScores(scores) {
   return scores.reduce((acc, s) => {
     if (!s.ownerId) {
@@ -45,6 +66,23 @@ async function buildLeaderboard(userScores) {
   const topUsersRaw = Object.entries(userScores)
     .sort((a, b) => b[1] - a[1])
     .slice(0, TOP_USER_COUNT);
+  const leaderboard = [];
+  for (let i = 0; i < topUsersRaw.length; i++) {
+    const [ownerId, score] = topUsersRaw[i];
+    const user = await User.findByjiraId(ownerId);
+    leaderboard.push({
+      rank: i + 1,
+      email: user?.email,
+      id: user?.jiraId,
+      name: user?.displayName,
+      score,
+    });
+  }
+  return leaderboard;
+}
+async function buildAllLeaderboard(userScores) {
+  const topUsersRaw = Object.entries(userScores)
+    .sort((a, b) => b[1] - a[1]);
   const leaderboard = [];
   for (let i = 0; i < topUsersRaw.length; i++) {
     const [ownerId, score] = topUsersRaw[i];
@@ -105,6 +143,7 @@ exports.calculateweeklyscores = [
       }
 
       const leaderboard = await buildLeaderboard(userScores);
+      const weeklyAllScore = await buildAllLeaderboard(userScores);
       const allUsers = await userModel.getAll();
       for (let index = allUsers.length - 1; index >= 0; index -= 1) {
         const jiraId = allUsers[index]?.jiraId;
@@ -117,6 +156,12 @@ exports.calculateweeklyscores = [
         startOfWeek,
         endOfWeek,
         leaderboard,
+      });
+      WeeklyAllScores.create({
+        id: (new Date(startOfWeek)).toISOString().slice(0, 10).replace(/-/g, ''),
+        startOfWeek,
+        endOfWeek,
+        weeklyAllScores: weeklyAllScore,
       });
       const sent = await sendLeaderboardEmails({ allUsers, userScores, leaderboard, startOfWeek, endOfWeek });
 
