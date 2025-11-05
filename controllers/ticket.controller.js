@@ -108,6 +108,45 @@ exports.addNewTicket = [
   },
 ];
 
+exports.addNewTickets = [
+  authMiddleware,
+  async(req, res) => {
+    try {
+      const { tickets } = req.body;
+      if (!tickets || !Array.isArray(tickets)) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          message: 'Missing or invalid tickets in request body',
+        });
+      }
+
+      const addedTickets = [];
+      for (const ticket of tickets) {
+        // Add the ticket only in Firebase, without configId
+        await addDoc(collection(db, 'tickets'), {
+          ...ticket,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          lastSync: new Date(),
+        });
+        addedTickets.push(ticket);
+      }
+
+      res.status(HTTP_STATUS.CREATED).json({
+        success: true,
+        message: 'Tickets added successfully to Firebase',
+        data: addedTickets,
+      });
+    } catch (error) {
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Error adding new tickets',
+        error: error.message,
+      });
+    }
+  },
+];
+
 exports.updateTicket = [
   authMiddleware,
   async(req, res) => {

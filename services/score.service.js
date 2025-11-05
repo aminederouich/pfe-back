@@ -46,8 +46,8 @@ class ScoreService {
       score: calculatedScore,
       ruleName: rule.name || 'Règle sans nom',
       ticketKey: ticket.key || ticket.title || 'Ticket sans clé',
+      dateAffection: new Date(ticket.fields.resolutiondate),
     };
-
     // Sauvegarder ou mettre à jour le score
     const savedScore = await TicketScoreModel.upsertTicketScore(scoreData);
 
@@ -73,7 +73,9 @@ class ScoreService {
 
     for (const ticketId of ticketIds) {
       try {
-        const result = await this.calculateTicketScore(ticketId, ruleId);
+        const ticket = await TicketModel.getTicketById(ticketId);
+
+        const result = await this.calculateTicketScore(ticketId, ruleId, ticket.fields.assignee.accountId);
         results.push({
           ticketId,
           ...result,
