@@ -1,7 +1,7 @@
 const { collection, addDoc, getDocs, doc, getDoc, query, where } = require('firebase/firestore');
 const { db } = require('../config/firebase');
 
-const collectionName = 'scores';
+const collectionName = 'ticketScores';
 
 const ScoreModel = {
   // Méthodes pour les règles de score (collection: 'scores')
