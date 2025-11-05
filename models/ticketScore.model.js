@@ -7,7 +7,6 @@ const TicketScoreModel = {
   async addTicketScore(data) {
     const scoreData = {
       ...data,
-      dateAffection: new Date(),
     };
     const docRef = await addDoc(collection(db, collectionName), scoreData);
     return { id: docRef.id, ...scoreData };
@@ -43,9 +42,7 @@ const TicketScoreModel = {
   async updateTicketScore(docId, data) {
     const scoreData = {
       ...data,
-      dateAffection: new Date(),
     };
-
     const docRef = doc(db, collectionName, docId);
     await updateDoc(docRef, scoreData);
 
