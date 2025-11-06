@@ -116,7 +116,7 @@ async function sendLeaderboardEmails({ allUsers, userScores, leaderboard, startO
 // Planification : chaque dimanche à 23h59 '59 23 * * 0'
 // Cron: chaque dimanche à 23h59 (UTC serveur) -> '59 23 * * 0'
 // Ajuster selon fuseau; placeholder précédent remplacé.
-cron.schedule('35 11 12 * * *', () => {
+cron.schedule('00 10 10 * * *', () => {
   processWeeklyTopScores().catch(() => null);
 });
 module.exports = { processWeeklyTopScores };

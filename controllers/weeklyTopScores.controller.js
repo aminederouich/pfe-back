@@ -69,7 +69,7 @@ async function buildLeaderboard(userScores) {
   const leaderboard = [];
   for (let i = 0; i < topUsersRaw.length; i++) {
     const [ownerId, score] = topUsersRaw[i];
-    const user = await User.findByjiraId(ownerId);
+    const user = await User.findByAccountId(ownerId);
     leaderboard.push({
       rank: i + 1,
       email: user?.email,
@@ -86,7 +86,7 @@ async function buildAllLeaderboard(userScores) {
   const leaderboard = [];
   for (let i = 0; i < topUsersRaw.length; i++) {
     const [ownerId, score] = topUsersRaw[i];
-    const user = await User.findByjiraId(ownerId);
+    const user = await User.findByAccountId(ownerId);
     leaderboard.push({
       rank: i + 1,
       email: user?.email,
