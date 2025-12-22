@@ -21,19 +21,19 @@ const myself = async(configData) => {
 };
 
 const createConfig = async(configData) => {
-  return await JiraConfig.create(configData);
+  return JiraConfig.create(configData);
 };
 
 const getConfigById = async(configId) => {
-  return await JiraConfig.findById(configId);
+  return JiraConfig.findById(configId);
 };
 
 const updateConfig = async(configId, updateData) => {
-  return await JiraConfig.update(configId, updateData);
+  return JiraConfig.update(configId, updateData);
 };
 
 const deleteConfig = async(configId) => {
-  return await JiraConfig.delete(configId);
+  return JiraConfig.delete(configId);
 };
 
 module.exports = { myself, createConfig, getConfigById, updateConfig, deleteConfig };
