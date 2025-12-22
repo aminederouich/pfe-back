@@ -2,9 +2,6 @@
  * Script pour générer une interface de vérification JIRA en mode terminal
  */
 
-const fs = require('fs');
-const path = require('path');
-
 // Fonction pour centrer le texte
 function center(text, width = 80) {
   const spaces = Math.max(0, Math.floor((width - text.length) / 2));

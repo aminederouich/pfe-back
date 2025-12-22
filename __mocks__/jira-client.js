@@ -22,7 +22,7 @@ class MockJiraClient {
     };
   }
 
-  async searchJira(jql, options) {
+  async searchJira() {
     return {
       issues: [
         {
@@ -50,11 +50,11 @@ class MockJiraClient {
     };
   }
 
-  async updateIssue(issueKey, update) {
+  async updateIssue() {
     return { success: true };
   }
 
-  async listTransitions(issueKey) {
+  async listTransitions() {
     return {
       transitions: [
         { id: '11', name: 'To Do' },
@@ -64,7 +64,7 @@ class MockJiraClient {
     };
   }
 
-  async transitionIssue(issueKey, transition) {
+  async transitionIssue() {
     return { success: true };
   }
 

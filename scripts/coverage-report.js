@@ -31,7 +31,7 @@ function analyzeCoverage() {
     }
 
     if (line.startsWith('LF:')) {
-      const count = parseInt(line.split(':')[1]);
+      const count = parseInt(line.split(':')[1], 10);
       totalLines += count;
       if (currentFile) {
         fileStats[currentFile].lines.total = count;
@@ -39,7 +39,7 @@ function analyzeCoverage() {
     }
 
     if (line.startsWith('LH:')) {
-      const count = parseInt(line.split(':')[1]);
+      const count = parseInt(line.split(':')[1], 10);
       coveredLines += count;
       if (currentFile) {
         fileStats[currentFile].lines.covered = count;
@@ -47,7 +47,7 @@ function analyzeCoverage() {
     }
 
     if (line.startsWith('FNF:')) {
-      const count = parseInt(line.split(':')[1]);
+      const count = parseInt(line.split(':')[1], 10);
       totalFunctions += count;
       if (currentFile) {
         fileStats[currentFile].functions.total = count;
@@ -55,7 +55,7 @@ function analyzeCoverage() {
     }
 
     if (line.startsWith('FNH:')) {
-      const count = parseInt(line.split(':')[1]);
+      const count = parseInt(line.split(':')[1], 10);
       coveredFunctions += count;
       if (currentFile) {
         fileStats[currentFile].functions.covered = count;
@@ -63,7 +63,7 @@ function analyzeCoverage() {
     }
 
     if (line.startsWith('BRF:')) {
-      const count = parseInt(line.split(':')[1]);
+      const count = parseInt(line.split(':')[1], 10);
       totalBranches += count;
       if (currentFile) {
         fileStats[currentFile].branches.total = count;
@@ -71,7 +71,7 @@ function analyzeCoverage() {
     }
 
     if (line.startsWith('BRH:')) {
-      const count = parseInt(line.split(':')[1]);
+      const count = parseInt(line.split(':')[1], 10);
       coveredBranches += count;
       if (currentFile) {
         fileStats[currentFile].branches.covered = count;

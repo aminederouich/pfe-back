@@ -77,22 +77,22 @@ try {
 
   lines.forEach(line => {
     if (line.startsWith('LF:')) {
-      totalLines += parseInt(line.split(':')[1]);
+      totalLines += parseInt(line.split(':')[1], 10);
     }
     if (line.startsWith('LH:')) {
-      coveredLines += parseInt(line.split(':')[1]);
+      coveredLines += parseInt(line.split(':')[1], 10);
     }
     if (line.startsWith('FNF:')) {
-      totalFunctions += parseInt(line.split(':')[1]);
+      totalFunctions += parseInt(line.split(':')[1], 10);
     }
     if (line.startsWith('FNH:')) {
-      coveredFunctions += parseInt(line.split(':')[1]);
+      coveredFunctions += parseInt(line.split(':')[1], 10);
     }
     if (line.startsWith('BRF:')) {
-      totalBranches += parseInt(line.split(':')[1]);
+      totalBranches += parseInt(line.split(':')[1], 10);
     }
     if (line.startsWith('BRH:')) {
-      coveredBranches += parseInt(line.split(':')[1]);
+      coveredBranches += parseInt(line.split(':')[1], 10);
     }
   });
 
@@ -112,7 +112,7 @@ try {
   } else {
     console.log(`\n⚠️  Couverture actuelle: ${avgCoverage}% (Objectif: 80%)\n`);
   }
-} catch (error) {
+} catch {
   console.log('⚠️  Rapport de couverture non disponible\n');
 }
 
