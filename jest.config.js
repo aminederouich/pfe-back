@@ -1,9 +1,27 @@
 module.exports = {
   testEnvironment: 'node',
-  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.js$',
   collectCoverage: false,
-  coveragePathIgnorePatterns: ['/node_modules/'],
-  verbose: false,
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html', 'json'],
+  collectCoverageFrom: [
+    'services/**/*.js',
+    'controllers/**/*.js',
+    'models/**/*.js',
+    'middleware/**/*.js',
+    'utils/**/*.js',
+    '!**/*.test.js',
+    '!**/node_modules/**',
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 75,
+      lines: 75,
+      statements: 75,
+    },
+  },
+  coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
+  verbose: true,
   clearMocks: true,
   resetMocks: true,
   restoreMocks: true,
@@ -11,4 +29,7 @@ module.exports = {
   forceExit: true,
   detectOpenHandles: false,
   maxWorkers: 1,
+  testMatch: [
+    '**/test/**/*.test.js',
+  ],
 };
