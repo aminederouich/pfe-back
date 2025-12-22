@@ -39,7 +39,10 @@ const sendEmailVerification = jest.fn(() => {
   return Promise.resolve();
 });
 
+const getAuth = jest.fn(() => mockAuth);
+
 module.exports = {
+  getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,

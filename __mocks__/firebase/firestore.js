@@ -58,7 +58,10 @@ const mockLimit = jest.fn((count) => {
   return { _type: 'limit', count };
 });
 
+const getFirestore = jest.fn(() => mockDb);
+
 module.exports = {
+  getFirestore,
   collection: mockCollection,
   doc: mockDoc,
   getDocs: mockGetDocs,
