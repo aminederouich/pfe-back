@@ -70,6 +70,7 @@ async function buildLeaderboard(userScores) {
   for (let i = 0; i < topUsersRaw.length; i++) {
     const [ownerId, score] = topUsersRaw[i];
     const user = await User.findByAccountId(ownerId);
+    console.log(ownerId, 'Top user:', user);
     leaderboard.push({
       rank: i + 1,
       email: user?.email,
