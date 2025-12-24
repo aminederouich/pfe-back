@@ -57,14 +57,14 @@ exports.addConfigJiraClient = [
   async(req, res) => {
     try {
       // Validation des données
-      const validationErrors = JiraConfig.validateConfigData(req.body);
-      if (validationErrors) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          error: true,
-          message: 'Validation failed',
-          details: validationErrors,
-        });
-      }
+      // const validationErrors = JiraConfig.validateConfigData(req.body);
+      // // if (validationErrors) {
+      // //   return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      // //     error: true,
+      // //     message: 'Validation failed',
+      // //     details: validationErrors,
+      // //   });
+      // // }
 
       const exists = await JiraConfig.findByHost(req.body.host);
       if (exists) {
@@ -147,14 +147,14 @@ exports.updateConfigJiraClient = [
 
     try {
       // Validation des données
-      const validationErrors = JiraConfig.validateConfigData(configData);
-      if (validationErrors) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          error: true,
-          message: 'Validation failed',
-          details: validationErrors,
-        });
-      }
+      // const validationErrors = JiraConfig.validateConfigData(configData);
+      // if (validationErrors) {
+      //   return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      //     error: true,
+      //     message: 'Validation failed',
+      //     details: validationErrors,
+      //   });
+      // }
 
       const updatedConfig = await JiraConfig.updateById(id, configData);
       res.status(HTTP_STATUS.OK).json({
